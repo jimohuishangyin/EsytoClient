@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="@color/white"
+        >
+    <ImageView android:layout_width="fill_parent"
+	    android:layout_height="1dp"
+	    android:src="@color/line_gray"/>
+	<Button 
+	    android:id="@+id/btn_pic_local"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:background="@drawable/btn_gray_big"
+	    android:layout_marginLeft="@dimen/margin_left"
+	    android:layout_marginRight="@dimen/margin_left"
+	    android:layout_marginTop="15dp"
+	    android:textColor="@color/text_black"
+	    android:textSize="22dp"
+	    android:text="本地图库"/>
+	<Button 
+	    android:id="@+id/btn_pic_takephoto"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:background="@drawable/btn_gray_big"
+	    android:layout_marginLeft="@dimen/margin_left"
+	    android:layout_marginRight="@dimen/margin_left"
+	    android:layout_marginTop="15dp"
+	    android:layout_marginBottom="18dp"
+	    android:textColor="@color/text_black"
+	    android:textSize="22dp"
+	    android:text="拍照"/>
+
+</LinearLayout>
+

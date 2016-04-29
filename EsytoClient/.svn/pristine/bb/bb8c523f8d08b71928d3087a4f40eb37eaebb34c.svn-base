@@ -1,0 +1,171 @@
+package com.ec2.yspay;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import android.app.DatePickerDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.DatePicker;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.ec2.yspay.activity.BaseActivity;
+import com.ec2.yspay.activity.CashCollectActivity;
+import com.ec2.yspay.adapter.CashCollectListAdapter;
+import com.ec2.yspay.common.DateUtils;
+import com.ec2.yspay.common.MyApplication;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.entity.PayTypeEntity;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.cash.CashCollectItem;
+import com.ec2.yspay.http.response.GetCashCollectResponse;
+import com.ec2.yspay.http.task.GetCashCollectListTask;
+import com.ec2.yspay.widget.MonPickerDialog;
+import com.ec2.yspay.widget.WarnPopupDialog;
+
+public class CashCollectListActivity extends BaseActivity
+{
+    private ListView cityListView;
+    private List<CashCollectItem> list = new ArrayList<CashCollectItem>();
+    private LinearLayout llDate;
+    private int mYear,mMonth;
+    private TextView tvYear,tvMonth;
+    private CashCollectListAdapter adapter;
+    private String totalAmount="0";
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_cash_collect_list);
+        cityListView = (ListView)findViewById(R.id.lv_citylist);
+        adapter = new CashCollectListAdapter(mContext, list);
+        cityListView.setAdapter(adapter);
+        mYear = DateUtils.getYear();
+        mMonth = DateUtils.getMonth();
+        tvYear = (TextView)findViewById(R.id.tv_year);
+        tvMonth = (TextView)findViewById(R.id.tv_month);
+        tvYear.setText(mYear+"年");
+        tvMonth.setText(mMonth+"");
+        llDate = (LinearLayout)findViewById(R.id.ll_date);
+        llDate.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                // TODO Auto-generated method stub
+                showMonPicker();
+            }
+        });
+        
+    }
+    /**
+     * 重载方法
+     */
+    @Override
+    protected void onResume()
+    {
+        // TODO Auto-generated method stub
+        super.onResume();
+        getCashCollectList();
+    }
+    private void getCashCollectList(){
+        GetCashCollectListTask task = new GetCashCollectListTask(mContext,mYear+"-"+mMonth);
+        task.setProgressVisiable(true);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                GetCashCollectResponse response = (GetCashCollectResponse)obj;
+                list.clear();
+                list.addAll(response.getCollectList());
+                adapter.notifyDataSetChanged();
+                totalAmount = response.getTotalAmount();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                list.clear();
+                adapter.notifyDataSetChanged();
+                GetCashCollectResponse response = (GetCashCollectResponse)obj;
+                showToastLong(response.getResultDesc());
+                totalAmount = "0";
+            }
+        });
+        task.execute();
+    }
+    public void showMonPicker() {
+        final Calendar localCalendar = Calendar.getInstance();
+        localCalendar.setTime(DateUtils.strToDate("yyyy-MM", mYear+"-"+mMonth));
+        new MonPickerDialog(mContext,new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year,int monthOfYear, int dayOfMonth) {
+                        mYear = year;
+                        mMonth = monthOfYear+1;
+                        tvYear.setText(mYear+"年");
+                        tvMonth.setText(mMonth+"");
+                        getCashCollectList();
+                    }
+                }, localCalendar.get(1), localCalendar.get(2),localCalendar.get(5)).show();
+    }
+    /**
+     * 一键归集
+     * 
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年11月28日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    public void onclick_guiji(View v){
+        if("0".equals(totalAmount)||Toolkits.isStrEmpty(totalAmount)){
+            showToast("当前无归集订单！");
+        }else{
+            showWarnDialog();
+        }
+    }
+    private void showWarnDialog() {
+        
+        Date dateNow = new Date();
+        String dateStr = DateUtils.dateToStr("yyyy-MM-dd hh:mm", dateNow);
+        final WarnPopupDialog.Builder builder = new WarnPopupDialog.Builder(mContext);
+        //builder.setMessage("该凭证号已超过撤销时间,只能通过现金退款,是否继续");
+        builder.setTitle("现金归集");
+        builder.setMessage("归集时间："+dateStr+"\n"
+            +"现金："+totalAmount+"元\n"
+            +"操作员："+MyApplication.mDataCache.userName);
+        builder.setNegativeButton("取消",
+                new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    
+                        
+                    }
+                });
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                
+                dialog.dismiss();
+                //调用一键归集接口
+                Intent intent = new Intent(mContext, CashCollectActivity.class);
+                intent.putExtra("money", totalAmount);
+                intent.putExtra("transDate", mYear+"-"+mMonth);
+                startActivity(intent);
+            }
+        });
+
+        builder.create().show();
+
+    }
+}

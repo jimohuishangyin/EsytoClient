@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+<RelativeLayout 
+    android:id="@+id/rl_parent"
+    android:layout_width="fill_parent"
+    android:background="@drawable/fenlei_bg_normal"
+    android:layout_marginTop="10dp"
+    android:layout_height="50dp">
+    <ImageView 
+        android:id="@+id/iv_show"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="12dp"
+        android:src="@drawable/icon_open"/>
+    <TextView
+        android:id="@+id/tv_name"
+        style="@style/textview_white_small_style"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:textSize="16dp"
+        android:layout_toRightOf="@id/iv_show"
+        android:layout_marginLeft="12dp"
+        android:text="管理员"/>
+</RelativeLayout>
+</LinearLayout>

@@ -1,0 +1,141 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:client="http://schemas.android.com/apk/res/com.ec2.yspay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <com.ec2.yspay.widget.MyTitle
+            android:id="@+id/rl_top"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            client:isShowLeft="true"
+            client:titleName="撤销与退款" />
+
+        <TextView
+            android:id="@+id/tv_explain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"
+            android:paddingRight="10dp"
+            android:text="退款说明"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:padding="@dimen/padding_parent" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:orientation="vertical" >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    style="@style/checkbox_btn_style"
+                    android:layout_width="match_parent"
+                    android:layout_centerVertical="true"
+                    android:text="交易流水号"
+                    android:textColor="@color/black_1" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:orientation="horizontal" >
+
+                <EditText
+                    android:id="@+id/et_orderid"
+                    style="@style/editText_gray_style"
+                    android:layout_height="50dp"
+                    android:layout_width="match_parent"
+                    android:hint="请输入交易流水号"
+                    android:inputType="number" />
+
+                <ImageButton
+                    android:id="@+id/ib_saoma"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:background="@null"
+                    android:src="@drawable/saoma" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginTop="25dp"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/btn_done"
+                style="@style/text_15_ffffff_sdw"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_red454"
+                android:gravity="center"
+                android:text="确定" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="7dp"
+        android:background="#eeeeee" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:paddingLeft="18dp"
+        android:paddingRight="18dp"
+        android:paddingTop="12dp" >
+
+        <TextView
+            android:id="@+id/type_pay"
+            style="@style/textview_black1"
+            android:text="最近收款记录" />
+
+        <com.ec2.yspay.widget.PullToRefreshLayout
+            android:id="@+id/refresh_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="7dp" >
+
+            <include layout="@layout/refresh_head" />
+            <!-- 支持所有实现Pullable接口的View -->
+
+            <com.ec2.yspay.widget.PullableListView
+                android:id="@+id/lv_lasted_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:divider="@color/line_gray"
+                android:scrollbars="none"
+                android:dividerHeight="0.5dp" />
+
+            <include layout="@layout/load_more" />
+        </com.ec2.yspay.widget.PullToRefreshLayout>
+    </LinearLayout>
+
+</LinearLayout>

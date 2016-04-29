@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:orientation="vertical" >
+	<LinearLayout 
+	    android:id="@+id/rl_top"
+	    android:layout_width="match_parent"
+	    android:layout_height="56dp"
+	    android:background="@color/white"
+	    android:orientation="vertical" >
+		<RelativeLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="0dp"
+		    android:layout_weight="45"
+		    android:background="@color/background"
+		    android:gravity="center_vertical">
+		    <RelativeLayout
+	        android:layout_width="fill_parent"
+	        android:layout_height="match_parent" >
+			<TextView 
+			    android:id="@+id/tvTitle"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_centerInParent="true"
+			    android:text="选择图片" 
+			    android:textColor="@color/white"
+			    android:textSize="22dp"/>
+	          
+	      </RelativeLayout>
+		      <ImageView
+			    android:id="@+id/ivTitleLeft"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:paddingTop="9dp"
+			    android:paddingBottom="9dp"
+			    android:paddingLeft="10dp"
+			    android:paddingRight="10dp"
+			    android:clickable="true"
+			    android:layout_centerVertical="true"
+			    android:src="@drawable/icon_back"/>
+		      <Button
+			    android:id="@+id/tv_done"
+			    android:layout_width="56dp"
+			    android:layout_height="36dp"
+			    android:layout_alignParentRight="true"
+			    android:layout_centerVertical="true"
+			    android:clickable="true"
+			    android:text="确定"
+			    android:layout_marginRight="10dp"
+			    android:background="@drawable/btn_red_9"
+			    android:textSize="18dp"
+			    android:textColor="@color/white"/>
+		</RelativeLayout>
+		<ImageView
+		    android:layout_width="fill_parent"
+		    android:layout_height="0dp"
+		    android:layout_weight="0"
+		    android:src="#7f000000"/>
+	</LinearLayout>
+    <com.ec2.yspay.widget.ClipImageLayout
+        android:id="@+id/clipImageLayout"
+        android:layout_below="@id/rl_top"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+    
+</RelativeLayout>

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">易商付</string>
+    <string name="scan_slow_network">网络开小差\n请稍后再试</string>
+    <string name="scan_text">请将二维码放入扫描框内\n即可自动扫描</string>
+    <string name="scan_no_network">当前网络不可用\n请检查网络设置</string>
+    <string name="open">打开</string>
+    <string name="close">关闭</string>
+    <string name="title">主页</string>
+    <string name="left">左边菜单</string>
+    <string name="right">右边菜单</string>
+    <string name="left_and_right">Left and Right</string>
+    <string name="demo_1">通过改变不同的值来改变滑动菜单不同的效果，可以设置的值有：\n1. 设置滑动菜单显示的位置（左边、右边或者左右两边都有）；\n2. 设置触摸屏幕的模式（全屏触摸打开滑动菜单、边缘触摸打开滑动菜单或者触摸不能打开滑动菜单）；\n2. 设置滑动菜单滑动时缩放的效果以及关闭此效果（值越大效果越明显）；\n4. 设置滑动菜单滑动时的阴影效果以及关闭此效果（值越大效果越明显）；\n5. 设置滑动菜单滑动时渐入渐出的效果（值越大效果越明显）。</string>
+    <string name="title_activity_cash_pay">CashPayActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_pay_info">PayInfoActivity</string>
+    <string name="title_activity_pic_scan">PicScanActivity</string>
+    <string name="title_activity_pay_success">PaySuccessActivity</string>
+    <string name="title_activity_pay_waitting">PayWaittingActivity</string>
+    <string name="title_alert">提示信息</string>
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="title_activity_refund">RefundActivity</string>
+    <string name="title_activity_pay_input">PayInputActivity</string>
+    <string name="title_activity_refund_paytype">RefundPaytypeActivity</string>
+    <string name="title_activity_refund_manager_pwd">RefundManagerPwdActivity</string>
+    <string name="title_activity_refund_trading_number">RefundTradingNumberActivity</string>
+    <string name="title_activity_refund_detail">RefundDetailActivity</string>
+    <string name="title_activity_pic_show_all_screen">PicShowAllScreenActivity</string>
+    <string name="title_activity_refund_success">RefundSuccessActivity</string>
+    <string name="title_activity_print_home_">Print_home_Activity</string>
+    <string name="title_activity_print_all_together">PrintAllTogetherActivity</string>
+    <string name="title_activity_print_list">PrintListActivity</string>
+    <string name="pull_to_refresh">下拉刷新</string>
+    <string name="release_to_refresh">释放立即刷新</string>
+    <string name="refreshing">正在刷新...</string>
+    <string name="refresh_succeed">刷新成功</string>
+    <string name="refresh_fail">刷新失败</string>
+    <string name="pullup_to_load">上拉加载更多</string>
+    <string name="release_to_load">释放立即加载</string>
+    <string name="loading">正在加载...</string>
+    <string name="load_succeed">加载成功</string>
+    <string name="load_fail">加载失败</string>
+    <string name="title_activity_print_preview">PrintPreviewActivity</string>
+    <string name="title_activity_device_connect">DeviceConnectActivity</string>
+    <string name="title_activity_report_main">ReportMainActivity</string>
+    <string name="title_activity_limit_money">LimitMoneyActivity</string>
+    <string name="device_manager_input">设备号</string>
+    <string name="device_manager_title">设备管理</string>
+    <string name="device_manager_connection">连接设备</string>
+    <string name="device_get_deviceid">获取设备号</string>
+    <string name="single_title">下单</string>
+    <string name="single_no">订单编号</string>
+    <string name="orderpay_titile">订单支付</string>
+    <string name="orderpay_payment">支付</string>
+    <string name="ordersearch_title">订单查询</string>
+    <string name="ordersearch_btntext">查询</string>
+    <string name="voucher_resupply_title">补发签购单</string>
+    <string name="voucher_resupply_ok">确定</string>
+    <string name="revocation_title">撤销交易</string>
+    <string name="revocation_ok">撤销</string>
+    <string name="printbill_title">打印商户小票</string>
+    <string name="print">打印</string>
+    <!-- 898000156911002 00019130 生产：898000072990001  00000001  预授权生产  898310072994003 00000001 预授权测试  shouji000000004   sj000004 -->
+    <string name="merchant_id">898350283980179</string>
+    <string name="terminal_id">59700738</string>
+    <string name="oneMoreTimePress">再按一次退出程序</string>
+    <string name="register">注册</string>
+    <string name="device_bind_fail">设备绑定失败：</string>
+    <string name="pay_success_voucher_fail">支付成功，但请重新签名</string>
+    <string name="pay_success">支付成功</string>
+    <string name="pay_fail">支付失败：</string>
+    <string name="order_serch_success">订单信息查询成功</string>
+    <string name="order_serch_fail">订单信息查询失败：</string>
+    <string name="fail">失败</string>
+    <string name="success">成功</string>
+    <string name="printbill_success">打印成功</string>
+    <string name="printbill_fail">打印失败：</string>
+    <string name="revocation_fail">撤单失败：</string>
+    <string name="revocation_success">撤单成功</string>
+    <string name="revocation_success_vercher_fail">撤单成功，但请重新签名</string>
+    <string name="single_success">下单成功，订单号为：</string>
+    <string name="single_fail">下单失败：</string>
+    <string name="voucher_resupply_success">补发签购单成功！</string>
+    <string name="voucher_success">签购单发送成功！</string>
+    <string name="mpos_callback">插件回传信息：</string>
+    <string name="orderstate_success">成功</string>
+    <string name="orderstate_fail">失败</string>
+    <string name="orderstate_paying">支付中</string>
+    <string name="orderstate_canceled">已撤销</string>
+    <string name="orderstate_canceling">撤销中</string>
+    <string name="orderstate_neworder">新订单</string>
+    <string name="text">新订单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿单隧道发生大大声发达省份大多发生大扫荡风大扫荡发生大扫荡分混搭风格豆腐干豆腐干；看看发生大立刻发卡桑德拉可是阿克苏的徕卡的徕卡的开发开放的啊看见的罚款岁的flak斯蒂芬帕克all使得开发商肯定发生垮卡拉斯柯达发送旅客的大力开发的森林砍伐离开阿阿克隆技术的flak手机登陆大连市看到flakiuqefaseafldk</string>
+    <string name="pay_memo">产品名称=显示备注中的产品名称显示备注中的产品名称&amp;账户名称=中国国际信托股份邮箱公司&amp;帐号=1312343331243343&amp;开户行=中信银行南昌分行营业部</string>
+    <string name="app_back">返回</string>
+    <string name="app_ok">确定</string>
+    <string name="app_cancel">取消</string>
+    <string name="app_continue">继续</string>
+    <string name="app_tip">提示</string>
+    <string name="app_send">发送</string>
+    <string name="app_set">设置</string>
+    <string name="app_save">保存</string>
+    <string name="app_delete">删除</string>
+    <string name="app_nextstep">下一步</string>
+    <string name="app_prevstep">上一步</string>
+    <string name="app_finish">完成</string>
+    <string name="app_find">查找</string>
+    <string name="app_edit">编辑</string>
+
+    <!-- applet -->
+    <string name="applet_secimg_title">填写验证码</string>
+    <string name="applet_secimg_change">换一张图片</string>
+    <string name="applet_seccode_tip">验证码不能为空</string>
+    <string name="applet_seccode_fail_tip">验证码错误，请重新输入</string>
+
+    <!-- verify -->
+    <string name="verify_password_null_tip">密码不能为空，请输入密码</string>
+
+    <!-- format -->
+    <string name="fmt_date">M月d日</string>
+    <string name="fmt_longdate">yyyy年M月d日</string>
+    <string name="fmt_datetime" formatted="false">M月d日 %skk:mm</string>
+    <string name="fmt_patime">kk:mm</string>
+    <string name="fmt_longtime" formatted="false">yyyy年M月d日 %skk:mm</string>
+    <string name="fmt_in60min" formatted="false">%d分钟前</string>
+    <string name="fmt_justnow">1分钟内</string>
+    <string name="fmt_dawn">凌晨</string>
+    <string name="fmt_morning">早上</string>
+    <string name="fmt_noon">中午</string>
+    <string name="fmt_afternoon">下午</string>
+    <string name="fmt_evening">晚上</string>
+    <string name="fmt_pre_yesterday">昨天</string>
+    <string name="fmt_iap_err" formatted="false">网络连接不可用，请稍候重试</string>
+    <string name="hello">Hello World, SDKSampleActivity!</string>
+    <string name="app_share">分享</string>
+    <string name="enter">这是SDK_Sample的入口界面</string>
+    <string name="reg">将该app注册到微信</string>
+    <string name="goto_send">跳转到发消息界面</string>
+    <string name="goto_pay">跳转到支付界面</string>
+    <string name="goto_fav">跳转到收藏界面</string>
+    <string name="launch_wx">启动微信</string>
+    <string name="check_timeline_supported">检查是否支持发送到朋友圈</string>
+    <string name="send_to_wx_title">发送到微信</string>
+    <string name="get_from_wx_title">从微信接收</string>
+    <string name="show_from_wx_title">显示微信请求的消息</string>
+    <string name="pay_by_wx_title">通过微信支付</string>
+    <string name="prepay_id_wx_text">prepayid</string>
+    <string name="invoke_ip">invoke_ip</string>
+    <string name="prepay_id_value">wx20141126110244e3e4bc4e580111072793</string>
+    <string name="errcode_success">发送成功</string>
+    <string name="errcode_cancel">发送取消</string>
+    <string name="errcode_deny">发送被拒绝</string>
+    <string name="errcode_unknown">发送返回</string>
+    <string name="launch_from_wx">Launch From Weixin</string>
+
+    <!-- WXMediaMessage -->
+    <string name="input_openid">输入openid</string>
+    <string name="input_scope">输入scope</string>
+    <string name="send">发送到微信</string>
+    <string name="receive">从微信接收</string>
+    <string name="is_timeline">是否分享到朋友圈</string>
+    <string name="send_text">发送文本</string>
+    <string name="send_text_default">这段文字发送自微信SDK示例程序</string>
+    <string name="send_img">发送图片</string>
+
+    <string-array name="send_img_item">
+        <item>发送图片的二进制数据</item>
+        <item>发送图片的本地路径</item>
+        <item>发送图片的URL</item>
+    </string-array>
+
+    <string name="send_img_file_not_exist">文件不存在</string>
+    <string name="send_file">发送文件</string>
+
+    <string-array name="send_file_item">
+        <item>发送文件的二进制数据</item>
+        <item>发送文件的本地路径</item>
+    </string-array>
+
+    <string name="send_file_file_not_exist">文件不存在</string>
+    <string name="send_pic">发送照片</string>
+    <string name="send_music">发送音乐</string>
+
+    <string-array name="send_music_item">
+        <item>发送音乐url</item>
+        <item>发送低带宽音乐url</item>
+    </string-array>
+
+    <string name="send_video">发送视频</string>
+
+    <string-array name="send_video_item">
+        <item>发送视频url</item>
+        <item>发送低带宽视频url</item>
+    </string-array>
+
+    <string name="send_webpage">发送网页</string>
+
+    <string-array name="send_webpage_item">
+        <item>发送网页url</item>
+    </string-array>
+
+    <string name="send_appdata">发送app消息</string>
+
+    <string-array name="send_appdata_item">
+        <item>发送app文件本地路径</item>
+        <item>发送app二进制数据</item>
+        <item>发送无附件的app</item>
+    </string-array>
+
+    <string name="send_emoji">发送表情消息</string>
+
+    <string-array name="send_emoji_item">
+        <item>发送表情本地路径</item>
+        <item>发送表情二进制数据</item>
+    </string-array>
+    <string-array name="send_emoji_item_format">
+        <item>发送GIF图片</item>
+        <item>发送非GIF图片</item>
+    </string-array>
+
+    <!-- GetFromWXActivity -->
+    <string name="share_text_to_weixin">回应文本到微信</string>
+    <string name="share_text_default">这段文字回应自微信SDK示例程序</string>
+    <string name="share_url_to_weixin">回应URL到微信</string>
+    <string name="share_pic_to_weixin">回应图片到微信</string>
+    <string name="share_music_to_weixin">回应音乐到微信</string>
+    <string name="share_video_to_weixin">回应视频到微信</string>
+    <string name="share_appdata_to_weixin">回应app消息到微信</string>
+    <string name="register_as_weixin_app_sender">注册微信事件发送器</string>
+    <string name="get_token_from_weixin">获取微信访问Token</string>
+    <string name="unregister_from_weixin">从微信反注册</string>
+    <string name="show_from_wx_tip">这个界面用于显示微信向第三方app请求显示的信息</string>
+
+    <!-- PayActivity -->
+    <string name="unifiedorder_v3_wx">APP支付生成预支付订单</string>
+    <string name="pay__pre_by_wxap">生成APP微信支付参数</string>
+    <string name="pay_by_wxap">调起微信支付</string>
+    <string name="check_pay">检查微信版本是否支持支付</string>
+    <string name="input_reqkey">输入reqkey</string>
+    <string name="input_package_value">输入package value</string>
+    <string name="input_sign">输入sign</string>
+    <string name="getting_access_token">正在获取access token...</string>
+    <string name="get_access_token_succ">获取access token成功</string>
+    <string name="get_access_token_fail" formatted="false">获取access token失败，原因%s</string>
+    <string name="getting_prepayid">正在获取预支付订单...</string>
+    <string name="paying">支付中</string>
+    <string name="get_prepayid_succ">获取prepayid成功</string>
+    <string name="get_prepayid_fail" formatted="false">获取prepayid失败，原因%s</string>
+
+    <!-- WXPayEntryActivity -->
+    <string name="pay_result_tip">这个界面用于显示第三方app通过微信支付的结果</string>
+    <string name="pay_result_callback_msg" formatted="false">微信支付结果：%s</string>
+
+    <!-- BC-test -->
+    <string name="bc_pay" formatted="false">微信支付</string>
+    <string name="bc_pay_wx_title">微信支付</string>
+    <string name="bc_pay_goto_wx">打开微信支付</string>
+    <string name="title_activity_settle_accounts">SettleAccountsActivity</string>
+    <string name="title_activity_company_main">CompanyMainActivity</string>
+    <string name="title_activity_personal_msg">PersonalMsgActivity</string>
+    <string name="title_activity_city_list">CityListActivity</string>
+    <string name="title_activity_personal_qrcode">PersonalQrcodeActivity</string>
+    <string name="title_activity_personal_management">PersonalManagementActivity</string>
+    <string name="title_activity_personal_add">PersonalAddActivity</string>
+    <string name="title_activity_about_us">AboutUsActivity</string>
+    <string name="title_activity_cash_collect_list">CashCollectListActivity</string>
+    <string name="title_activity_equipment">EquipmentActivity</string>
+    <string name="title_activity_personal_pwd_change">PersonalPwdChangeActivity</string>
+    <string name="title_activity_order_detail">OrderDetailActivity</string>
+    <string name="title_activity_business_management">BusinessManagementActivity</string>
+    <string name="title_activity_store_management">StoreManagementActivity</string>
+    <string name="title_activity_store_add">StoreAddActivity</string>
+    <string name="submit_explain">1.我们将在提交申请后2个工作日与您联系，请您保持通讯顺畅。\n \n 2.您亦可访问我们的官网www.esyto.com直接进行开通。 \n \n 3.客服电话：400-6602036</string>
+    <string name="btn_scan">扫描其他设备</string>
+    <string name="title_connecting">正在连接…</string>
+    <string name="title_connected_to">已连接: </string>
+    <string name="title_not_connected">没有连接</string>
+    <string name="not_connected">请先连接蓝牙打印机</string>
+    <string name="scanning"></string>
+    <string name="select_device"></string>
+    <string name="none_paired">没有匹配的设备</string>
+    <string name="none_found">没有找到设备</string>
+    <string name="paired_devices">已匹配设备</string>
+    <string name="other_devices">其它可用设备</string>
+    <string name="title_activity_test_union_pay">TestUnionPayActivity</string>
+    <string name="title_activity_store_list_add">StoreListAddActivity</string>
+    <string name="title_activity_person_add_list">PersonAddListActivity</string>
+
+</resources>

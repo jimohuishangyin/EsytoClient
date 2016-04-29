@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:client="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/month_bg_color"
+    >
+    
+
+    <com.ec2.yspay.widget.MyTitle
+        android:id="@+id/rl_top"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        client:isShowLeft="true"
+        client:isShowRight="true"
+        client:titleName="门店管理"
+        client:rightText="添加"  />
+    
+    
+    <ListView
+            android:id="@+id/lv_storelist"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@id/rl_top"
+            android:divider="@color/line_gray_color"
+            android:dividerHeight="0.5dp"
+            android:scrollbars="none"
+            />
+    
+</RelativeLayout>

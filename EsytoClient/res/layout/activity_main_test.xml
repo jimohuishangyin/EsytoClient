@@ -1,0 +1,173 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="商户号：0018888888" />
+
+        <EditText
+            android:id="@+id/merchant_id"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入商户号"
+            android:text="043101180050000" />
+        <!-- 043101180050000   534231 -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="密码：534231" />
+
+        <EditText
+            android:id="@+id/merchant_pwd"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入商户密码"
+            android:text="534231" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="金额，单位：元，精确到分，如：0.01元" />
+
+        <EditText
+            android:id="@+id/amount"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入金额"
+            android:text="0.01" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="付费类型：0 翼支付，1 账单支付" />
+
+        <Spinner
+            android:id="@+id/pay_type"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/bill_pay_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="请输入用户帐户" />
+
+            <EditText
+                android:id="@+id/userAcount"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="wangbin" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="账单付费类型：1:预付费2:后付费0:不限" />
+
+            <EditText
+                android:id="@+id/bill_type"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="商品编码：" />
+
+            <EditText
+                android:id="@+id/goods_code"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="abc12341234" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="商品名称：" />
+
+            <EditText
+                android:id="@+id/goods_name"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="COFFEE" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="商品数量：" />
+
+            <EditText
+                android:id="@+id/goods_num"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="商户客服号码：" />
+
+            <EditText
+                android:id="@+id/merchant_phone"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="phone"
+                android:text="17091956785" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="请输入手机号：" />
+
+        <EditText
+            android:id="@+id/account_id"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入手机号"
+            android:inputType="phone" />
+
+        <EditText
+            android:id="@+id/et_merchant"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="资金源"
+            android:text="01" />
+
+        <Button
+            android:id="@+id/payBtnView"
+            android:layout_width="120dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp"
+            android:text="提交订单" />
+    </LinearLayout>
+
+</ScrollView>

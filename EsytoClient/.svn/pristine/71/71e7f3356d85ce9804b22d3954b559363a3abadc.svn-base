@@ -1,0 +1,666 @@
+package com.ec2.yspay.activity;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.text.InputFilter;
+import android.text.InputType;
+import android.text.TextUtils;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.PopupWindow;
+import android.widget.PopupWindow.OnDismissListener;
+import android.widget.TextView;
+
+import com.ec2.yspay.CityListActivity;
+import com.ec2.yspay.R;
+import com.ec2.yspay.adapter.ManagerListAdapter;
+import com.ec2.yspay.common.AsyncImageLoader;
+import com.ec2.yspay.common.Log;
+import com.ec2.yspay.common.MyApplication;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.common.UploadFileTask;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.cash.ShopItem;
+import com.ec2.yspay.http.cash.ShopManagerItem;
+import com.ec2.yspay.http.response.BooleanResponse;
+import com.ec2.yspay.http.response.GetStoreMsgResponse;
+import com.ec2.yspay.http.task.BaseTask;
+import com.ec2.yspay.http.task.DelStoreTask;
+import com.ec2.yspay.http.task.GetStoreMsgTask;
+import com.ec2.yspay.http.task.UpdateStoreTask;
+import com.ec2.yspay.widget.MyTitle;
+import com.ec2.yspay.widget.RoundImageViewNoBorder;
+import com.ec2.yspay.widget.WarnPopupDialog;
+import com.ec2.yspay.widget.WarnPopupWhiteRedDialog;
+import com.ec2.yspay.widget.popwindow.CityPopwindow;
+import com.ec2.yspay.widget.popwindow.PicPopwindow;
+import com.ec2.yspay.widget.popwindow.CityPopwindow.OnCitySelectedListener;
+
+public class StoreDetailActivity extends BaseActivity implements
+		OnClickListener {
+	private String uploadUrl = "";
+	private ShopItem mShopItem;
+	private String shopCode;
+	private String headcount;
+	private TextView tvShopName, tvShopAddr, tvShopCity, tvPhone,tvHeadcount;
+	private String shopName;
+	private String shopPhone;
+	private String shopAddress;
+	private String province;
+	private String city;
+	private String tShopName, tShopAddress, tShopPhone, tProvince, tCity;
+	private RoundImageViewNoBorder ivLogo;
+	private String shopLogoImage, shopLogoImageUrl;
+	private Button mSaveShopDesButton;
+	private AsyncImageLoader asyImg = new AsyncImageLoader(this);
+	private final int START_ALBUM_REQUESTCODE = 1;
+	private final int CAMERA_WITH_DATA = 2;
+	private final int CROP_RESULT_CODE = 3;
+	public static final String TMP_PATH = "clip_temp.jpg";
+	private boolean mSaveShopDes = false;
+	private MyTitle myTitle;
+	private int duty;
+	private List<ShopManagerItem> managersList = new ArrayList<ShopManagerItem>();
+	private ListView lv_manager;
+	private ManagerListAdapter managerAdapter;
+	private LinearLayout llGrayView;
+	private PicPopwindow picPopwindow;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_storedetail);
+		mShopItem = (ShopItem) getIntent().getSerializableExtra("shopItem");
+		if (mShopItem != null) {
+			shopCode = mShopItem.getShopCode();
+			headcount = mShopItem.getHeadcount();
+		} else {
+			finish();
+		}
+		picPopwindow = new PicPopwindow(this);
+		duty = MyApplication.mDataCache.duty;
+		getShopMsg();
+		tvShopName = (TextView) findViewById(R.id.tv_company_name);
+		tvShopAddr = (TextView) findViewById(R.id.tv_company_addr);
+		tvShopCity = (TextView) findViewById(R.id.tv_company_city);
+		tvPhone = (TextView) findViewById(R.id.tv_phone_num);
+		tvHeadcount = (TextView) findViewById(R.id.tv_head_count);
+		ivLogo = (RoundImageViewNoBorder) findViewById(R.id.iv_logo);
+		mSaveShopDesButton = (Button) findViewById(R.id.saveshop);
+		myTitle = (MyTitle) findViewById(R.id.rl_top);
+		managerAdapter = new ManagerListAdapter(mContext, managersList);
+		lv_manager = (ListView) findViewById(R.id.lv_managerlist);
+		lv_manager.setAdapter(managerAdapter);
+		llGrayView = (LinearLayout) findViewById(R.id.ll_gray_view);
+		myTitle.setLeftOnclickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                savePopupDialog(0);
+            }
+        });
+		if(duty !=3){
+			tvShopCity.setOnClickListener(this);
+			tvShopName.setOnClickListener(this);
+			tvShopAddr.setOnClickListener(this);
+			ivLogo.setOnClickListener(this);
+			tvPhone.setOnClickListener(this);
+			mSaveShopDesButton.setOnClickListener(this);
+			myTitle.setRightOnclickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					updateShopMsg();
+				}
+			});
+			tvHeadcount.setOnClickListener(this);
+		}
+		
+		uploadUrl = BaseTask.URL + "/app/updateShopLogoImage/"
+				+ MyApplication.mDataCache.token + "_" + shopCode;
+	}
+	/**
+     * 重载方法
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if(keyCode==KeyEvent.KEYCODE_BACK){
+        	savePopupDialog(0);
+        }
+        return false;
+    }
+	private void initView() {
+		tvShopName.setText(shopName);
+		tvShopAddr.setText(shopAddress);
+		tvPhone.setText(shopPhone);
+		tvShopCity.setText(province + "/" + city);
+		asyImg.LoadImage(shopLogoImageUrl, shopLogoImage, ivLogo,
+				getResources().getDrawable(R.drawable.company_default_logo));
+		tvHeadcount.setText(headcount+"人");
+		Toolkits.setListViewHeightBasedOnChildren(lv_manager);
+		managerAdapter.notifyDataSetChanged();
+	}
+
+	private void getShopMsg() {
+		GetStoreMsgTask task = new GetStoreMsgTask(mContext);
+		task.setShopCode(shopCode);
+		task.setOnTaskFinished(new OnTaskFinished() {
+
+			@Override
+			public void onSucc(Object obj) {
+				// TODO Auto-generated method stub
+				GetStoreMsgResponse response = (GetStoreMsgResponse) obj;
+				tShopName = shopName = response.getShopName();
+				tShopAddress = shopAddress = response.getShopAddress();
+				tShopPhone = shopPhone = response.getShopPhone();
+				tProvince = province = response.getProvince();
+				tCity = city = response.getCity();
+				shopLogoImage = response.getShopLogoImage();
+				shopLogoImageUrl = response.getShopLogoImageUrl();
+				managersList.clear();
+				managersList.addAll(response.getManagers());
+				if(response.getManagers().size()>0){
+					llGrayView.setVisibility(View.VISIBLE);
+				}
+				initView();
+			}
+
+			@Override
+			public void onFail(Object obj) {
+				// TODO Auto-generated method stub
+				GetStoreMsgResponse response = (GetStoreMsgResponse) obj;
+				showToast(response.getResultDesc());
+				finish();
+			}
+		});
+		task.setProgressVisiable(true);
+		task.execute();
+	}
+
+	/**
+	 * @Title: updateShopMsg
+	 * @Description: TODO(这里用一句话描述这个方法的作用)
+	 * @param: 修改门店内容
+	 * @return: void
+	 * @throws 
+	 */
+	private void updateShopMsg() {
+		UpdateStoreTask task = new UpdateStoreTask(mContext);
+		task.setShopName(tShopName);
+		task.setProvince(tProvince);
+		task.setCity(tCity);
+		task.setShopCode(shopCode);
+		task.setAddress(tShopAddress);
+		task.setPhone(tShopPhone);
+		task.setProgressVisiable(true);
+		task.setOnTaskFinished(new OnTaskFinished() {
+
+			@Override
+			public void onSucc(Object obj) {
+				// TODO Auto-generated method stub
+				showToast("修改成功！");
+				shopName = tShopName;
+				shopAddress = tShopAddress;
+				province = tProvince;
+				city = tCity;
+				shopPhone = tShopPhone;
+				initView();
+				mSaveShopDes = false;
+				myTitle.setRightViewVisible(View.GONE);
+			}
+
+			@Override
+			public void onFail(Object obj) {
+				// TODO Auto-generated method stub
+				BooleanResponse response = (BooleanResponse) obj;
+				showToast(response.getResultDesc());
+				tShopName = shopName;
+				tShopAddress = shopAddress;
+				tProvince = province;
+				tCity = city;
+				tShopPhone = shopPhone;
+				initView();
+			}
+		});
+		task.execute();
+	}
+
+	// 上传头像
+	private void uploadTouxiang(String filePath) {
+		Log.i("upload", "上传头像：" + filePath + "\n上传地址：" + uploadUrl);
+		UploadFileTask task = new UploadFileTask(mContext);
+		task.setFilePath(filePath);
+		task.setUploadUrl(uploadUrl);
+		task.setProgressMsg("正在上传头像，请稍等...");
+		task.setProgressVisiable(true);
+		task.setOnTaskFinished(new OnTaskFinished() {
+			@Override
+			public void onSucc(Object obj) {
+				// TODO Auto-generated method stub
+				getShopMsg();
+			}
+
+			@Override
+			public void onFail(Object obj) {
+				// TODO Auto-generated method stub
+				showToast("头像设置失败！");
+			}
+		});
+		task.execute();
+	}
+
+	/**
+	 * 通过uri获取文件路径
+	 * 
+	 * @param mUri
+	 * @return
+	 */
+	public String getFilePath(Uri mUri) {
+		try {
+			return getFilePathByUri(mUri);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+	}
+
+	private String getFilePathByUri(Uri mUri) throws Exception {
+		if (!TextUtils.isEmpty(mUri.getAuthority())) {
+			Cursor cursor = getContentResolver().query(mUri,
+					new String[] { MediaStore.Images.Media.DATA }, null, null,
+					null);
+			if (null == cursor) {
+				return null;
+			}
+			cursor.moveToFirst();
+			String path = cursor.getString(cursor
+					.getColumnIndex(MediaStore.Images.Media.DATA));
+			cursor.close();
+			return path;
+		} else {
+			return mUri.getPath();
+		}
+	}
+
+	/**
+	 * 单行名称修改 state:0 门店名称,1 门店地址， 2 联系电话；
+	 * 
+	 * @author 罗洪祥
+	 * @version V001Z0001
+	 * @date 2015年11月5日
+	 * @see [相关类/方法]
+	 * @since [产品/模块版本]
+	 */
+	private void showNamePopwindow(String hint, final int state) {
+		View outerView = LayoutInflater.from(mContext).inflate(
+				R.layout.layout_pop_update_name, null);
+		final EditText tvName = (EditText) outerView
+				.findViewById(R.id.et_update_name);
+		tvName.setHint(hint);
+		TextView tvSure = (TextView) outerView.findViewById(R.id.tv_sure);
+		TextView tvCancel = (TextView) outerView.findViewById(R.id.tv_cancel);
+		tvSure.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (!tvName.getText().toString().isEmpty()) {
+					if (state == 0) {
+						tShopName = tvName.getText().toString();
+						tvShopName.setText(tShopName);
+					} else if (state == 1) {
+						tShopAddress = tvName.getText().toString();
+						tvShopAddr.setText(tShopAddress);
+					} else if (state == 2) {
+						tShopPhone = tvName.getText().toString();
+						tvPhone.setText(tShopPhone);
+					}
+					// updateShopMsg();
+					mSaveShopDes = true;
+					myTitle.setRightViewVisible(View.VISIBLE);
+					popupWindow.dismiss();
+				} else {
+					showToast("内容不能为空");
+				}
+			}
+		});
+		tvCancel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				popupWindow.dismiss();
+			}
+		});
+		showPopupwindow(outerView);
+	}
+
+	/**
+	 * 电话号码修改
+	 * 
+	 * @author 罗洪祥
+	 * @version V001Z0001
+	 * @date 2015年11月5日
+	 * @see [相关类/方法]
+	 * @since [产品/模块版本]
+	 */
+	private void showPhonePopwindow() {
+		View outerView = LayoutInflater.from(mContext).inflate(
+				R.layout.layout_pop_update_name, null);
+		final EditText tvName = (EditText) outerView
+				.findViewById(R.id.et_update_name);
+		tvName.setInputType(InputType.TYPE_CLASS_NUMBER
+				| InputType.TYPE_NUMBER_VARIATION_NORMAL);
+		InputFilter[] filters = { new InputFilter.LengthFilter(11) };
+		tvName.setFilters(filters);
+		tvName.setHint("请输入联系电话");
+		TextView tvSure = (TextView) outerView.findViewById(R.id.tv_sure);
+		TextView tvCancel = (TextView) outerView.findViewById(R.id.tv_cancel);
+		tvSure.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if (!tvName.getText().toString().isEmpty()) {
+					tShopPhone = tvName.getText().toString();
+					tvPhone.setText(tShopPhone);
+					mSaveShopDes = true;
+					myTitle.setRightViewVisible(View.VISIBLE);
+					// updateShopMsg();
+					popupWindow.dismiss();
+				} else {
+					showToast("内容不能为空");
+				}
+
+			}
+		});
+		tvCancel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				popupWindow.dismiss();
+			}
+		});
+		showPopupwindow(outerView);
+	}
+
+	/**
+	 * 修改头像入口
+	 * 
+	 * @author 罗洪祥
+	 * @version V001Z0001
+	 * @date 2015年12月7日
+	 * @see [相关类/方法]
+	 * @since [产品/模块版本]
+	 */
+	private void showPicPopwindow() {
+		picPopwindow.showPicPopwindow(findViewById(R.id.ll_main));
+	}
+
+	private PopupWindow popupWindow;
+
+	/**
+	 * 弹框复用方法
+	 * 
+	 * @author 罗洪祥
+	 * @version V001Z0001
+	 * @date 2015年11月4日
+	 * @see [相关类/方法]
+	 * @since [产品/模块版本]
+	 */
+	private void showPopupwindow(View outerView) {
+		popupWindow = new PopupWindow(outerView, LayoutParams.MATCH_PARENT,
+				LayoutParams.WRAP_CONTENT, true);
+		popupWindow.setFocusable(true);
+		popupWindow.setOutsideTouchable(true);
+		// 设置SelectPicPopupWindow弹出窗体动画效果
+		popupWindow.setAnimationStyle(R.style.PopupAnimation);
+		// 实例化一个ColorDrawable颜色为半透明
+		ColorDrawable dw = new ColorDrawable(0xb0000000);
+		// 设置PopupWindow弹出软键盘模式（此处为覆盖式）
+		popupWindow.setSoftInputMode(PopupWindow.INPUT_METHOD_NEEDED);
+		popupWindow
+				.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		// //产生背景变暗效果
+		popupWindow.setBackgroundDrawable(dw);
+		WindowManager.LayoutParams lp = getWindow().getAttributes();
+		lp.alpha = 0.4f;
+		getWindow().setAttributes(lp);
+		// 设置SelectPicPopupWindow弹出窗体的背景
+		popupWindow.setOnDismissListener(new OnDismissListener() {
+
+			@Override
+			public void onDismiss() {
+				// TODO Auto-generated method stub
+				WindowManager.LayoutParams lp = getWindow().getAttributes();
+				lp.alpha = 1f;
+				getWindow().setAttributes(lp);
+
+				//
+			}
+		});
+		popupWindow.showAtLocation(findViewById(R.id.ll_main), Gravity.BOTTOM
+				| Gravity.CENTER_HORIZONTAL, 0, 0);
+	}
+
+	
+
+	/**
+	 * 重载方法
+	 * 
+	 * @param requestCode
+	 * @param resultCode
+	 * @param data
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		if (resultCode != RESULT_OK) {
+			return;
+		}
+		switch (requestCode) {
+		case PicPopwindow.START_ALBUM_REQUESTCODE://截取成功，处理图片
+			 String picpath = picPopwindow.getPicPathFromData(data);
+			 if(picpath!=null)
+			 uploadTouxiang(picpath);
+			break;
+		case PicPopwindow.CAMERA_WITH_DATA:
+			// 照相机程序返回的,再次调用图片剪辑程序去修剪图片
+			picPopwindow.cropImageUri(PicPopwindow.CROP_RESULT_CODE);
+			break;
+		case PicPopwindow.CROP_RESULT_CODE:
+			String picpath2 = picPopwindow.getPathData();
+			uploadTouxiang(picpath2);
+			break;
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.tv_company_city:
+//			Intent cityIntent = new Intent(mContext, CityListActivity.class);
+//			startActivityForResult(cityIntent, 101);
+			showCityPopwindow();
+			break;
+		case R.id.tv_company_name:
+			showNamePopwindow("请输入门店名称", 0);
+			break;
+		case R.id.tv_company_addr:
+			showNamePopwindow("请输入门店地址", 1);
+			break;
+		case R.id.iv_logo:
+			showPicPopwindow();
+			break;
+		case R.id.tv_phone_num:
+			showPhonePopwindow();
+			break;
+		case R.id.saveshop:
+			showWarnDialog();
+			break;
+		case R.id.tv_head_count:
+			savePopupDialog(1);
+			if(!mSaveShopDes){
+				Intent headcountIntent = new Intent(mContext,PersonalManagerActivity.class); 
+				headcountIntent.putExtra("shopCode", shopCode);
+				headcountIntent.putExtra("shopName", shopName);
+				startActivity(headcountIntent);
+			}
+			break;
+		}
+	}
+	//code 0 退出     1 跳转
+	private void savePopupDialog(int code) {
+		if(code == 0){
+			if(mSaveShopDes){
+				final WarnPopupWhiteRedDialog.Builder builder = new WarnPopupWhiteRedDialog.Builder(
+						mContext);
+				// builder.setMessage("该凭证号已超过撤销时间,只能通过现金退款,是否继续");
+				builder.setTitle("提示");
+				builder.setMessage("是否保存");
+				builder.setNegativeButton("取消",
+						new android.content.DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								finish();
+							}
+						});
+				builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						updateShopMsg();	
+						dialog.dismiss();
+						finish();
+						
+					}
+				});
+				builder.create().show();
+			}else {
+				finish();
+			}
+		}else{
+			if(mSaveShopDes){
+				final WarnPopupWhiteRedDialog.Builder builder = new WarnPopupWhiteRedDialog.Builder(
+						mContext);
+				// builder.setMessage("该凭证号已超过撤销时间,只能通过现金退款,是否继续");
+				builder.setTitle("提示");
+				builder.setMessage("是否保存");
+				builder.setNegativeButton("取消",
+						new android.content.DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+							}
+						});
+				builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						updateShopMsg();	
+						dialog.dismiss();
+						
+						//跳转到员工
+						Intent headcountIntent = new Intent(mContext,PersonalManagerActivity.class); 
+						headcountIntent.putExtra("shopCode", shopCode);
+						headcountIntent.putExtra("shopName", shopName);
+						startActivity(headcountIntent);
+					}
+				});
+				builder.create().show();
+			}
+		}
+		
+		
+	}
+	private void showWarnDialog() {
+
+        final WarnPopupWhiteRedDialog.Builder builder = new WarnPopupWhiteRedDialog.Builder(mContext);
+        //builder.setMessage("该凭证号已超过撤销时间,只能通过现金退款,是否继续");
+        builder.setTitle("提示");
+        builder.setMessage("是否删除该门店？");
+        builder.setNegativeButton("取消",
+                new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    
+                        
+                    }
+                });
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                
+                dialog.dismiss();
+                delStore();
+                
+            }
+        });
+
+        builder.create().show();
+    }
+    /**
+     * 删除门店
+     * 
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年12月8日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    protected void delStore()
+    {
+        // TODO Auto-generated method stub
+        DelStoreTask task = new DelStoreTask(mContext);
+        task.setShopCode(shopCode);
+        task.setProgressVisiable(true);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                showToast("删除成功！");
+                finish();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                BooleanResponse response = (BooleanResponse)obj;
+                showToastLong(response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+    private void showCityPopwindow(){
+    	CityPopwindow cityTest = new CityPopwindow(this);
+    	cityTest.setOnCitySelectedListener(new OnCitySelectedListener() {
+			
+			@Override
+			public void onResult(String city, String province) {
+				tCity = city;
+				tProvince = province;
+				tvShopCity.setText(tProvince + "/" + tCity);
+				mSaveShopDes = true;
+				myTitle.setRightViewVisible(View.VISIBLE);
+			}
+		});
+    	cityTest.showCityPopwindow(findViewById(R.id.ll_main),tCity,tProvince);
+    }
+}

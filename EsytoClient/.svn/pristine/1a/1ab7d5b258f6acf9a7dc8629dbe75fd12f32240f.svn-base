@@ -1,0 +1,121 @@
+package com.ec2.yspay.activity;
+
+import android.content.res.Resources.Theme;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.common.PrintDeviceTools;
+import com.ec2.yspay.entity.PayTypeEntity;
+import com.ec2.yspay.entity.PrintOne;
+import com.ec2.yspay.entity.PrintOrderEntity;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.response.PrintByOrderidResponse;
+import com.ec2.yspay.http.task.PrintByOrderidTask;
+import com.ec2.yspay.print.PrintManager;
+import com.ec2.yspay.widget.ButtonWhiteCenter;
+import com.ec2.yspay.zxing.common.BitmapUtils;
+import com.google.zxing.WriterException;
+
+public class PrintPreviewActivity extends BaseActivity {
+	private String codeMsg = null;
+	private ImageView ivCode;
+	private PrintOrderEntity orderItem;
+	private TextView tvOrderId, tv_pznum, tv_money, tv_remark;
+	ButtonWhiteCenter btnSure;
+	private PrintManager printManager;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_print_preview);
+		printManager = PrintManager.getInstance(mContext);
+		orderItem = (PrintOrderEntity) getIntent().getSerializableExtra(
+				"orderItem");
+		ivCode = (ImageView) findViewById(R.id.iv_code);
+		tvOrderId = (TextView) findViewById(R.id.tv_orderId);
+		tv_pznum = (TextView) findViewById(R.id.tv_pznum);
+		tv_money = (TextView) findViewById(R.id.tv_money);
+		tv_remark = (TextView) findViewById(R.id.tv_remark);
+		btnSure = (ButtonWhiteCenter) findViewById(R.id.btn_sure);
+		tvOrderId.setText("交易流水号：" + orderItem.getOrderId());
+		tv_pznum.setText("支付方式："
+				+ PayTypeEntity.getPayName(orderItem.getChannelType()));
+		tv_money.setText("金额：" + orderItem.getAmount());
+		tv_remark.setText("备注：" + orderItem.getRemark());
+		codeMsg = orderItem.getOrderId();
+		showQRCode();
+		getOrderMsg(orderItem.getOrderId());
+		btnSure.setBtnOnclickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				print();
+			}
+		});
+	}
+
+	private void showQRCode() {
+		if (codeMsg != null) {
+			try {
+				DisplayMetrics dm = new DisplayMetrics();
+				getWindowManager().getDefaultDisplay().getMetrics(dm);
+				int mScreenWidth = dm.widthPixels * 2 / 3;
+				Bitmap bitmap = BitmapUtils.createQRCode(codeMsg, mScreenWidth,
+						null);
+
+				if (bitmap != null) {
+					ivCode.setImageBitmap(bitmap);
+					ivCode.setPadding(0, 0, 0, 0);
+				}
+
+			} catch (WriterException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+	}
+
+	private void print() {
+//		getOrderMsg(orderItem.getOrderId());
+		printManager.printOneDetailNew();
+	}
+
+	private void getOrderMsg(String orderId) {
+		PrintByOrderidTask task = new PrintByOrderidTask(mContext, orderId);
+		task.setProgressVisiable(true);
+		task.setOnTaskFinished(new OnTaskFinished() {
+
+			@Override
+			public void onSucc(Object obj) {
+				// TODO Auto-generated method stub
+				PrintByOrderidResponse response = (PrintByOrderidResponse) obj;
+				PrintOrderEntity mPrintOrderEntity = response.getPrintMsg();
+				PrintOrderEntity entity = new PrintOrderEntity(
+						mPrintOrderEntity.getTransactionId(), mPrintOrderEntity
+								.getOrderId(),
+						mPrintOrderEntity.getOrderTime(), mPrintOrderEntity
+								.getAccount(), mPrintOrderEntity.getAmount(),
+						mPrintOrderEntity.getRemark(), mPrintOrderEntity
+								.getShopName(), mPrintOrderEntity
+								.getChannelType());
+				printManager.setmPrintOrderEntity(entity);
+				
+			}  
+
+			@Override
+			public void onFail(Object obj) {
+				// TODO Auto-generated method stub
+				PrintByOrderidResponse response = (PrintByOrderidResponse) obj;
+				showToast(response.getResultDesc());
+			}
+		});
+		task.execute();
+	}
+}

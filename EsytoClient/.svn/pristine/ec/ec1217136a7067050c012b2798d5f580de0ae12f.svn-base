@@ -1,0 +1,104 @@
+package com.ec2.yspay.http.task;
+
+
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
+import android.os.StrictMode;
+
+import com.ec2.yspay.http.OnCancel;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.OnTaskStart;
+import com.ec2.yspay.http.request.Client;
+
+public class BaseTask extends AsyncTask<String, Integer, Boolean> {
+	protected Context mContext;
+	private ProgressDialog mProgressDialog;
+	private String mProgressMsg = "请稍候...";
+	private boolean mIsProgressVisiable = false;
+	protected OnTaskFinished mOnTaskFinished;
+	protected OnTaskStart mOnTaskStart;
+	protected OnCancel mOnCancel = null;
+	protected Client client;
+//	public static final String URL = "http://www.esyto.com:9090/esypay";
+//	public static final String URL = "http://api.esyto.com:9090/esypay";//正式环境
+//	public static final String URL = "http://192.168.0.253:8888/esypay";//增伟本地测试地址
+//	public static final String URL = "http://192.168.16.54:8888/esypay";//金庭本地测试地址
+	public static final String URL = "http://192.168.16.119:8888/esypay";//金庭本地测试地址
+//	public static final String URL = "http://192.168.16.124:9090/esypay";
+//	public static final String URL = "http://192.168.16.54:8888/esypay";//金庭本地测试地址
+//	public static final String URL = "http://192.168.1.104:8888/ecp";//勇强本地测试地址
+
+	
+	@SuppressLint("NewApi")
+	public BaseTask(Context context) {
+		mContext = context;
+		mProgressDialog = new ProgressDialog(mContext);
+		client = new Client(context,URL);
+	}
+
+	public void setProgressVisiable(boolean enable) {
+		mIsProgressVisiable = enable;
+	}
+
+	public void setProgressMsg(String msg) {
+		mProgressMsg = msg;
+	}
+
+	@Override
+	protected void onPreExecute() {
+		super.onPreExecute();
+		try {
+			if (mIsProgressVisiable) {
+				mProgressDialog
+						.setOnCancelListener(new DialogInterface.OnCancelListener() {
+							public void onCancel(DialogInterface dialog) {
+								cancel(true);
+								if (mOnCancel != null) {
+									mOnCancel.onClick();
+								}
+							}
+						});
+
+				mProgressDialog.setCancelable(true);
+				mProgressDialog.setCanceledOnTouchOutside(false);
+				mProgressDialog.setMessage(mProgressMsg);
+				mProgressDialog.show();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	protected Boolean doInBackground(String... params) {
+		if(isCancelled()) {
+			                return false;
+			            }
+		return true;
+	}
+
+	@Override
+	protected void onPostExecute(Boolean rslt) {
+		try {
+			if (mProgressDialog != null)
+				mProgressDialog.dismiss();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void setOnTaskFinished(OnTaskFinished onTaskFinished) {
+		mOnTaskFinished = onTaskFinished;
+	}
+
+	public void setOnTaskStart(OnTaskStart onTaskStart) {
+		mOnTaskStart = onTaskStart;
+	}
+
+	public void setOnCancel(OnCancel onCancel) {
+		mOnCancel = onCancel;
+	}
+}

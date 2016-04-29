@@ -1,0 +1,707 @@
+package com.ec2.yspay;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.text.InputFilter;
+import android.text.TextUtils;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.NumberPicker;
+import android.widget.NumberPicker.OnValueChangeListener;
+import android.widget.PopupWindow;
+import android.widget.PopupWindow.OnDismissListener;
+import android.widget.TextView;
+
+import com.ec2.yspay.activity.BaseActivity;
+import com.ec2.yspay.activity.ClipImageActivity;
+import com.ec2.yspay.common.AsyncImageLoader;
+import com.ec2.yspay.common.City;
+import com.ec2.yspay.common.CityManager;
+import com.ec2.yspay.common.Constants;
+import com.ec2.yspay.common.DateUtils;
+import com.ec2.yspay.common.Log;
+import com.ec2.yspay.common.MyApplication;
+import com.ec2.yspay.common.Province;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.common.UploadFileTask;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.response.GetPersonalMsgResponse;
+import com.ec2.yspay.http.response.UpdateCompanyMsgResponse;
+import com.ec2.yspay.http.task.BaseTask;
+import com.ec2.yspay.http.task.GetPersonalMsgTask;
+import com.ec2.yspay.http.task.UpdatePersonalMsgTask;
+import com.ec2.yspay.widget.ScrollerNumberPicker;
+import com.ec2.yspay.widget.ScrollerNumberPicker.OnSelectListener;
+import com.ec2.yspay.widget.popwindow.PicPopwindow;
+import com.ffcs.tools.album.PickImageFromAlbum;
+
+public class PersonalMsgActivity extends BaseActivity implements
+		OnClickListener {
+	private String uploadUrl = "";
+	private TextView tvUserName, tvUserNickName, tvUserPhoneNum, tvUserSex,
+			tvUserHome, tvUserBirthday, tvpassword;
+	private String mUserName, mUserProvince, mUserCity, mUserNickName,
+			mUserPhoneNum, mUserSex, mUserHome, mUserBirthday;
+	private String tUserName, tUserProvince, tUserCity, tUserNickName,
+			tUserPhoneNum, tUserSex, tUserHome, tUserBirthday;
+	private String mUserImg, mUserImgUrl;
+	private ImageView ivTouxiang;
+	private AsyncImageLoader asyImg = new AsyncImageLoader(this);
+	
+//	private String saveCROPPath;
+	private Uri cropFileUri;
+	private CityManager mCityManager;
+	private ArrayList<Province> mProvinceList;
+	private List<City> mCityList;
+	private ScrollerNumberPicker provincePicker;
+	private ScrollerNumberPicker cityPicker;
+	private int tempProvinceIndex = -1;
+	int province = 0;
+	NumberPicker CityPicker;
+	private PicPopwindow picPopwindow;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_personal_msg);
+		mCityManager = new CityManager();
+		mCityManager.readDataBase(mContext);
+		mProvinceList = (ArrayList<Province>) mCityManager.getProvivceList();
+		ivTouxiang = (ImageView) findViewById(R.id.iv_touxiang);
+		ivTouxiang.setOnClickListener(this);
+		asyImg.LoadImage(MyApplication.mDataCache.userImageUrl,
+				MyApplication.mDataCache.userImage, ivTouxiang, getResources()
+						.getDrawable(R.drawable.default_portrait));
+		getPersonalMsg();
+		picPopwindow = new PicPopwindow(this);
+		uploadUrl = BaseTask.URL + "/app/updateUserImage/"
+				+ MyApplication.mDataCache.token;
+//		saveCROPPath = getSDCardPath() + File.separator + getPackageName()
+//				+ File.separator + "crop" + File.separator;
+	}
+
+	/**
+	 * 重载方法
+	 */
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
+
+	private void initView() {
+		tvUserName = (TextView) findViewById(R.id.tv_user_name);
+		tvUserNickName = (TextView) findViewById(R.id.tv_user_nickname);
+		tvUserPhoneNum = (TextView) findViewById(R.id.tv_user_num);
+		tvUserSex = (TextView) findViewById(R.id.tv_user_sex);
+		tvUserHome = (TextView) findViewById(R.id.tv_user_home_addr);
+		tvUserBirthday = (TextView) findViewById(R.id.tv_user_birthday);
+		tvpassword = (TextView) findViewById(R.id.btn_update_pwd);
+		tvUserSex.setOnClickListener(this);
+		tvUserName.setOnClickListener(this);
+		tvUserNickName.setOnClickListener(this);
+		tvUserHome.setOnClickListener(this);
+		tvUserBirthday.setOnClickListener(this);
+		tvpassword.setOnClickListener(this);
+		findViewById(R.id.iv_ewm).setOnClickListener(this);
+		updateData();
+	}
+
+	private void updateData() {
+		tvUserName.setText(mUserName);
+		if (Toolkits.isStrEmpty(mUserName)) {
+			tvUserName.setText("未设置");
+		}
+		tvUserNickName.setText(mUserNickName);
+		tvUserPhoneNum.setText(mUserPhoneNum);
+		if ("1".equals(mUserSex)) {
+			tvUserSex.setText("女");
+		} else {
+			tvUserSex.setText("男");
+		}
+		tvUserHome.setText(mUserProvince + " / " + mUserCity);
+		tvUserBirthday.setText(mUserBirthday);
+		picPopwindow.copyTouxiangToCache(mUserImg);
+		if (!mUserImg.equals(MyApplication.mDataCache.userImage)) {
+			MyApplication.mDataCache.userImage = mUserImg;
+			MyApplication.mDataCache.userImageUrl = mUserImgUrl;
+//			asyImg.setmIsProgressVisiable(true);
+			asyImg.LoadImage(mUserImgUrl, mUserImg, ivTouxiang, getResources()
+					.getDrawable(R.drawable.default_portrait));
+		}
+
+	}
+
+	private void getPersonalMsg() {
+		GetPersonalMsgTask task = new GetPersonalMsgTask(mContext);
+		task.setProgressVisiable(true);
+		task.setOnTaskFinished(new OnTaskFinished() {
+
+			@Override
+			public void onSucc(Object obj) {
+				// TODO Auto-generated method stub
+				GetPersonalMsgResponse response = (GetPersonalMsgResponse) obj;
+				tUserName = mUserName = response.getUserName();
+				tUserCity = mUserCity = response.getCity();
+				tUserProvince = mUserProvince = response.getProvince();
+				tUserPhoneNum = mUserPhoneNum = response.getAccount();
+				tUserSex = mUserSex = response.getSex();
+				tUserBirthday = mUserBirthday = response.getBirthday();
+				tUserNickName = mUserNickName = response.getNickName();
+				mUserImg = response.getUserImage();
+				mUserImgUrl = response.getUserImageUrl();
+				initView();
+			}
+
+			@Override
+			public void onFail(Object obj) {
+				// TODO Auto-generated method stub
+				GetPersonalMsgResponse response = (GetPersonalMsgResponse) obj;
+				showToast(response.getResultDesc());
+				finish();
+			}
+		});
+		task.execute();
+	}
+
+	private void showPicPopwindow() {
+		picPopwindow.showPicPopwindow(findViewById(R.id.ll_main));
+	}
+
+	/**
+	 * 单行名称修改
+	 * 
+	 * @author 罗洪祥
+	 * @version V001Z0001
+	 * @date 2015年11月5日
+	 * @see [相关类/方法]
+	 * @since [产品/模块版本]
+	 */
+	private void showNamePopwindow(String hint, final boolean isNickName) {
+		View outerView = LayoutInflater.from(mContext).inflate(
+				R.layout.layout_pop_update_name, null);
+		final EditText tvName = (EditText) outerView
+				.findViewById(R.id.et_update_name);
+		tvName.setHint(hint);
+		if(isNickName){
+			tvName.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)}); 
+			tvName.setText(mUserNickName);
+		}else{
+			tvName.setFilters(new InputFilter[]{new InputFilter.LengthFilter(20)}); 
+			tvName.setText(mUserName);
+		}
+		TextView tvSure = (TextView) outerView.findViewById(R.id.tv_sure);
+		TextView tvCancel = (TextView) outerView.findViewById(R.id.tv_cancel);
+		tvSure.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if (isNickName) {
+					tUserNickName = tvName.getText().toString();
+				} else {
+					tUserName = tvName.getText().toString();
+				}
+
+				updatePersonalMsg();
+				popupWindow.dismiss();
+			}
+		});
+		tvCancel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				popupWindow.dismiss();
+			}
+		});
+		showPopupwindow(outerView);
+	}
+
+	/**
+	 * 密码修改
+	 * 
+	 * @author 罗洪祥
+	 * @version V001Z0001
+	 * @date 2015年11月5日
+	 * @see [相关类/方法]
+	 * @since [产品/模块版本]
+	 */
+	private void showPwdPopwindow() {
+		Intent intent = new Intent(mContext, PersonalPwdChangeActivity.class);
+
+		startActivity(intent);
+	}
+
+	private void showCityPopwindow() {
+		final View outerView = LayoutInflater.from(mContext).inflate(
+				R.layout.wheel_view_two, null);
+		TextView tvSure = (TextView) outerView.findViewById(R.id.tv_sure);
+		TextView tvCancel = (TextView) outerView.findViewById(R.id.tv_cancel);
+		provincePicker = (ScrollerNumberPicker) outerView
+				.findViewById(R.id.province);
+		cityPicker = (ScrollerNumberPicker) outerView.findViewById(R.id.city);
+		tUserProvince = "福建";
+		tUserCity = "厦门";
+		provincePicker.setData(getProvince());
+		provincePicker.setDefault(12);
+		cityPicker.setData(getCity(13));
+		cityPicker.setDefault(1);
+		provincePicker.setOnSelectListener(new OnSelectListener() {
+
+			@Override
+			public void selecting(int id, String text) {
+
+			}
+
+			@Override
+			public void endSelect(int id, String text) {
+				if (text.equals("") || text == null)
+					return;
+				if (tempProvinceIndex != id) {
+					cityPicker.setData(getCity(id + 1));
+					cityPicker.setDefault(0);
+					tUserCity = getCity(id + 1).get(0);
+				}
+				tempProvinceIndex = id;
+				tUserProvince = text;
+			}
+		});
+		cityPicker.setOnSelectListener(new OnSelectListener() {
+
+			@Override
+			public void selecting(int id, String text) {
+
+			}
+
+			@Override
+			public void endSelect(int id, String text) {
+				tUserCity = text;
+			}
+		});
+
+		tvSure.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				popupWindow.dismiss();
+				updatePersonalMsg();
+			}
+		});
+		tvCancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				popupWindow.dismiss();
+			}
+		});
+		showPopupwindow(outerView);
+	}
+
+	private ArrayList<String> getProvince() {
+		ArrayList<String> str = new ArrayList<String>();
+		for (int i = 0; i < mProvinceList.size(); i++) {
+			str.add(mProvinceList.get(i).getName());
+		}
+		return str;
+	}
+
+	private ArrayList<String> getCity(int provinceid) {
+		final int size = mCityManager.getProvinceCityNames(provinceid).size();
+		ArrayList<String> str = new ArrayList<String>();
+		for (int i = 0; i < size; i++) {
+			str.add(mCityManager.getProvinceCityNames(provinceid).get(i)
+					.getName());
+		}
+		return str;
+	}
+
+	/**
+	 * 修改性别弹框
+	 * 
+	 * @author 罗洪祥
+	 * @version V001Z0001
+	 * @date 2015年11月4日
+	 * @see [相关类/方法]
+	 * @since [产品/模块版本]
+	 */
+	private String UserSex = "0";
+
+	private void showSexPopwindow() {
+		View outerView = LayoutInflater.from(mContext).inflate(
+				R.layout.wheel_view, null);
+		NumberPicker sexPicker = (NumberPicker) outerView
+				.findViewById(R.id.sexpicker);
+		sexPicker
+				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		TextView tvSure = (TextView) outerView.findViewById(R.id.tv_sure);
+		TextView tvCancel = (TextView) outerView.findViewById(R.id.tv_cancel);
+		final String[] sexStrs = { "男", "女" };
+		sexPicker.setDisplayedValues(sexStrs);
+		sexPicker.setMinValue(0);
+		sexPicker.setMaxValue(sexStrs.length - 1);
+		sexPicker.setValue(0);
+		UserSex = "0";
+		sexPicker.setOnValueChangedListener(new OnValueChangeListener() {
+
+			@Override
+			public void onValueChange(NumberPicker picker, int oldVal,
+					int newVal) {
+				// TODO Auto-generated method stub
+				UserSex = newVal + "";
+			}
+		});
+		tvSure.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				tUserSex = UserSex;
+				updatePersonalMsg();
+				popupWindow.dismiss();
+			}
+		});
+		tvCancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				popupWindow.dismiss();
+			}
+		});
+		showPopupwindow(outerView);
+	}
+
+	private PopupWindow popupWindow;
+
+	/**
+	 * 弹框复用方法
+	 * 
+	 * @author 罗洪祥
+	 * @version V001Z0001
+	 * @date 2015年11月4日
+	 * @see [相关类/方法]
+	 * @since [产品/模块版本]
+	 */
+	private void showPopupwindow(View outerView) {
+		popupWindow = new PopupWindow(outerView, LayoutParams.MATCH_PARENT,
+				LayoutParams.WRAP_CONTENT, true);
+		popupWindow.setFocusable(true);
+		popupWindow.setOutsideTouchable(true);
+		// 设置SelectPicPopupWindow弹出窗体动画效果
+		popupWindow.setAnimationStyle(R.style.PopupAnimation);
+		// 实例化一个ColorDrawable颜色为半透明
+		ColorDrawable dw = new ColorDrawable(0xb0000000);
+		// 设置PopupWindow弹出软键盘模式（此处为覆盖式）
+		popupWindow.setSoftInputMode(PopupWindow.INPUT_METHOD_NEEDED);
+		popupWindow
+				.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		// //产生背景变暗效果
+		popupWindow.setBackgroundDrawable(dw);
+		WindowManager.LayoutParams lp = getWindow().getAttributes();
+		lp.alpha = 0.4f;
+		getWindow().setAttributes(lp);
+		// 设置SelectPicPopupWindow弹出窗体的背景
+		popupWindow.setOnDismissListener(new OnDismissListener() {
+			@Override
+			public void onDismiss() {
+				WindowManager.LayoutParams lp = getWindow().getAttributes();
+				lp.alpha = 1f;
+				getWindow().setAttributes(lp);
+
+				//
+			}
+		});
+		popupWindow.showAtLocation(findViewById(R.id.ll_main), Gravity.BOTTOM
+				| Gravity.CENTER_HORIZONTAL, 0, 0);
+	}
+
+	/**
+	 * 重载方法
+	 * 
+	 * @param v
+	 */
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+		case R.id.tv_user_sex:
+			showSexPopwindow();
+			break;
+		case R.id.tv_user_name:
+			showNamePopwindow("输入新的联系人名称", false);
+			break;
+		case R.id.tv_user_nickname:
+			showNamePopwindow("输入新的昵称", true);
+			break;
+		case R.id.tv_user_home_addr:
+			/*
+			 * Intent cityIntent = new Intent(mContext, CityListActivity.class);
+			 * startActivityForResult(cityIntent, 101);
+			 */
+			showCityPopwindow();
+			break;
+		case R.id.tv_user_birthday:
+			// showBeginDayPicker();
+			showBeginDayPicker2();
+			break;
+		case R.id.iv_touxiang:
+			showPicPopwindow();
+			break;
+		case R.id.iv_ewm:
+			Intent qrcodeIntent = new Intent(mContext,
+					PersonalQrcodeActivity.class);
+			qrcodeIntent.putExtra("mUserImgUrl", mUserImgUrl);
+			qrcodeIntent.putExtra("mUserName", mUserName);
+			qrcodeIntent.putExtra("mUserPhoneNum", mUserPhoneNum);
+			qrcodeIntent.putExtra("mUserImg", mUserImg);
+			qrcodeIntent.putExtra("mUserCity", mUserProvince + " / "
+					+ mUserCity);
+
+			startActivity(qrcodeIntent);
+			break;
+		case R.id.btn_update_pwd:
+			showPwdPopwindow();
+			break;
+		default:
+			break;
+		}
+	}
+
+	/**
+	 * 更新个人信息
+	 * 
+	 * @author 罗洪祥
+	 * @version V001Z0001
+	 * @date 2015年11月4日
+	 * @see [相关类/方法]
+	 * @since [产品/模块版本]
+	 */
+	private void updatePersonalMsg() {
+		UpdatePersonalMsgTask task = new UpdatePersonalMsgTask(mContext);
+		task.setProgressVisiable(false);
+		task.setAccount(tUserPhoneNum);
+		task.setBirthday(tUserBirthday);
+		task.setCity(tUserCity);
+		task.setProvince(tUserProvince);
+		task.setSex(tUserSex);
+		task.setNickName(tUserNickName);
+		task.setUserName(tUserName);
+		task.setOnTaskFinished(new OnTaskFinished() {
+
+			@Override
+			public void onSucc(Object obj) {
+				// TODO Auto-generated method stub
+				showToast("修改成功！");
+				mUserName = tUserName;
+				mUserProvince = tUserProvince;
+				mUserCity = tUserCity;
+				mUserNickName = tUserNickName;
+				mUserPhoneNum = tUserPhoneNum;
+				mUserSex = tUserSex;
+				mUserHome = tUserHome;
+				mUserBirthday = tUserBirthday;
+				updateData();
+				MyApplication.mDataCache.userName = mUserName;
+			}
+
+			@Override
+			public void onFail(Object obj) {
+				// TODO Auto-generated method stub
+				UpdateCompanyMsgResponse response = (UpdateCompanyMsgResponse) obj;
+				showToast(response.getResultDesc());
+				tUserName = mUserName;
+				tUserProvince = mUserProvince;
+				tUserCity = mUserCity;
+				tUserNickName = mUserNickName;
+				tUserPhoneNum = mUserPhoneNum;
+				tUserSex = mUserSex;
+				tUserHome = mUserHome;
+				tUserBirthday = mUserBirthday;
+			}
+		});
+		task.execute();
+	}
+
+	/**
+	 * 重载方法
+	 * 
+	 * @param requestCode
+	 * @param resultCode
+	 * @param data
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		if (resultCode != RESULT_OK) {
+			return;
+		}
+		switch (requestCode) {
+		case PicPopwindow.RESULT_STARTALBUM://截取成功，处理图片
+        	picPopwindow.startCaijian(data,PicPopwindow.REQUEST_ALBUM_QIETU);
+			 
+			break;
+		case PicPopwindow.RESULT_SARTCAMERA:
+			// 照相机程序返回的,再次调用图片剪辑程序去修剪图片
+			picPopwindow.cropImageUri(PicPopwindow.RESULT_CAMERA_QIETU);
+			break;
+		case PicPopwindow.RESULT_CAMERA_QIETU:
+			String picpath2 = picPopwindow.getPathData();
+			uploadTouxiang(picpath2);
+			break;
+		case PicPopwindow.REQUEST_ALBUM_QIETU:
+			String picpath = picPopwindow.getPicPathFromData(data);
+			 if(picpath!=null)
+				 uploadTouxiang(picpath);
+			break;
+		}
+	}
+
+	private void showBeginDayPicker2() {
+		int mYear = 0, mMonth = 0, mDay = 0;
+		Date date = DateUtils.strToDate("yyyy-MM-dd", mUserBirthday);
+		Calendar a = Calendar.getInstance();
+		a.setTime(date);
+		mYear = a.get(Calendar.YEAR);
+		mMonth = a.get(Calendar.MONTH) + 1;
+		mDay = a.get(Calendar.DATE);
+		View outerView = LayoutInflater.from(mContext).inflate(
+				R.layout.date_picker_view, null);
+		final DatePicker datePicker = (DatePicker) outerView
+				.findViewById(R.id.datepicker);
+		datePicker
+				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		TextView tvSure = (TextView) outerView.findViewById(R.id.tv_sure);
+		TextView tvCancel = (TextView) outerView.findViewById(R.id.tv_cancel);
+		Calendar calendar = Calendar.getInstance();
+		String initDateTime = mYear + "年" + mMonth + "月" + mDay + "日 14:44";
+		if (!(null == initDateTime || "".equals(initDateTime))) {
+			calendar = this.getCalendarByInintData(initDateTime);
+		} else {
+			initDateTime = calendar.get(Calendar.YEAR) + "年"
+					+ calendar.get(Calendar.MONTH) + "月"
+					+ calendar.get(Calendar.DAY_OF_MONTH) + "日 "
+					+ calendar.get(Calendar.HOUR_OF_DAY) + ":"
+					+ calendar.get(Calendar.MINUTE);
+		}
+
+		datePicker.init(calendar.get(Calendar.YEAR),
+				calendar.get(Calendar.MONTH),
+				calendar.get(Calendar.DAY_OF_MONTH), null);
+		datePicker.setMaxDate(new Date().getTime());
+		tvSure.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				tUserBirthday = datePicker.getYear() + "-"
+						+ (datePicker.getMonth() + 1) + "-"
+						+ datePicker.getDayOfMonth();
+				updatePersonalMsg();
+				popupWindow.dismiss();
+			}
+		});
+		tvCancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				popupWindow.dismiss();
+			}
+		});
+		showPopupwindow(outerView);
+	}
+
+	private Calendar getCalendarByInintData(String initDateTime) {
+		Calendar calendar = Calendar.getInstance();
+
+		// 将初始日期时间2012年07月02日 16:45 拆分成年 月 日 时 分 秒
+		String date = spliteString(initDateTime, "日", "index", "front"); // 日期
+		String time = spliteString(initDateTime, "日", "index", "back"); // 时间
+
+		String yearStr = spliteString(date, "年", "index", "front"); // 年份
+		String monthAndDay = spliteString(date, "年", "index", "back"); // 月日
+
+		String monthStr = spliteString(monthAndDay, "月", "index", "front"); // 月
+		String dayStr = spliteString(monthAndDay, "月", "index", "back"); // 日
+
+		String hourStr = spliteString(time, ":", "index", "front"); // 时
+		String minuteStr = spliteString(time, ":", "index", "back"); // 分
+
+		int currentYear = Integer.valueOf(yearStr.trim()).intValue();
+		int currentMonth = Integer.valueOf(monthStr.trim()).intValue() - 1;
+		int currentDay = Integer.valueOf(dayStr.trim()).intValue();
+		int currentHour = Integer.valueOf(hourStr.trim()).intValue();
+		int currentMinute = Integer.valueOf(minuteStr.trim()).intValue();
+
+		calendar.set(currentYear, currentMonth, currentDay, currentHour,
+				currentMinute);
+		return calendar;
+	}
+
+	public static String spliteString(String srcStr, String pattern,
+			String indexOrLast, String frontOrBack) {
+		String result = "";
+		int loc = -1;
+		if (indexOrLast.equalsIgnoreCase("index")) {
+			loc = srcStr.indexOf(pattern); // 取得字符串第一次出现的位置
+		} else {
+			loc = srcStr.lastIndexOf(pattern); // 最后一个匹配串的位置
+		}
+		if (frontOrBack.equalsIgnoreCase("front")) {
+			if (loc != -1)
+				result = srcStr.substring(0, loc); // 截取子串
+		} else {
+			if (loc != -1)
+				result = srcStr.substring(loc + 1, srcStr.length()); // 截取子串
+		}
+		return result;
+	}
+
+
+
+	// 上传头像
+	private void uploadTouxiang(String filePath) {
+		Log.i("upload", "上传头像：" + filePath + "\n上传地址：" + uploadUrl);
+		UploadFileTask task = new UploadFileTask(mContext);
+		task.setFilePath(filePath);
+		task.setUploadUrl(uploadUrl);
+		task.setProgressMsg("正在上传头像，请稍等...");
+		task.setProgressVisiable(true);
+		task.setOnTaskFinished(new OnTaskFinished() {
+
+			@Override
+			public void onSucc(Object obj) {
+				getPersonalMsg();
+			}
+
+			@Override
+			public void onFail(Object obj) {
+				showToast("头像设置失败！");
+			}
+		});
+		task.execute();
+	}
+	/************************* 头像设置 end ******************************/
+
+}

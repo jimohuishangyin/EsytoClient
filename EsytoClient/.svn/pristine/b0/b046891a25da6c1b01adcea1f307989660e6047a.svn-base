@@ -1,0 +1,441 @@
+package com.ec2.yspay.print;
+
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.ec2.yspay.bluetooth.BluetoothService;
+import com.ec2.yspay.common.DateUtils;
+import com.ec2.yspay.common.MyApplication;
+import com.ec2.yspay.entity.PayTypeEntity;
+import com.ec2.yspay.entity.PrintOrderEntity;
+import com.ec2.yspay.http.cash.PrintDetailItem;
+import com.ec2.yspay.http.response.QrOrderMsgResponse;
+import com.ec2.yspay.widget.DeviceListDialog;
+import com.ec2.yspay.widget.PayLoadingDialog;
+
+
+/**
+ * Created by luohx on 2016/1/5.
+ */
+public class PrintManager {
+
+    private static PrintManager printManager = null;
+    private static Context mContext;
+    private PrintOrderEntity mPrintOrderEntity;
+    public static final int PRINT_TYPE_ONE = 101;
+    public static final int PRINT_TYPE_TOTAL = 102;
+    public static final int PRINT_TYPE_DETAIL = 103;
+    public static final int PRINT_TYPE_REFUND = 104;
+    public int print_step;
+    public static final int REQUEST_ENABLE_BT = 2;
+    public static final int BLUETOOTH_ENABLE_QR = 201;
+    private PrintTotalEntity mPrintTotalEntity;
+    private PrintDetailEntity mPrintDetailEntity;
+    private QrOrderMsgResponse mResponse;
+    private String printTime;
+    public BluetoothService mBluetoothService = null;
+    // Name of the connected device
+    private String mConnectedDeviceName = null;
+    private BluetoothDevice con_dev = null;
+
+    private PrintManager() {
+        mBluetoothService = new BluetoothService(mContext, mHandler);
+        // 蓝牙不可用退出程序
+        if (mBluetoothService.isAvailable() == false) {
+//            Toast.makeText(this, "蓝牙不可用",
+//                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public static synchronized PrintManager getInstance(Context context) {
+        mContext = context;
+        if (printManager == null) {
+            printManager = new PrintManager();
+        }
+        return printManager;
+    }
+
+    public void connect(String address) {
+        BluetoothDevice con_dev = null;
+        con_dev = mBluetoothService.getDevByMac(address);
+
+        // Attempt to connect to the device
+        mBluetoothService.connect(con_dev);
+    }
+
+    public int getServiceState() {
+        return mBluetoothService.getState();
+    }
+
+    private MyHandler mHandler = new MyHandler();
+
+    private class MyHandler extends Handler {
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case BluetoothService.MESSAGE_STATE_CHANGE:// 改变连接的状态
+                    switch (msg.arg1) {
+                        case BluetoothService.STATE_CONNECTED:
+                            Toast.makeText(mContext, "已连接", Toast.LENGTH_SHORT).show();
+                            if(print_step == PRINT_TYPE_ONE){
+                            	printContinue();
+                            }else if(print_step == PRINT_TYPE_TOTAL){
+                            	printTotalContinue();
+                            }else if(print_step == PRINT_TYPE_DETAIL){
+                            	printDetailContinue();
+                            }else if (print_step == PRINT_TYPE_REFUND){
+                            	printRefundContinue();
+                            }
+                            break;
+                        case BluetoothService.STATE_CONNECTING:
+                            break;
+                        case BluetoothService.STATE_LISTEN:
+                        case BluetoothService.STATE_NONE:
+
+                            Toast.makeText(mContext, "连接失败", Toast.LENGTH_SHORT).show();
+
+                            break;
+                    }
+                    break;
+                case BluetoothService.MESSAGE_WRITE:
+
+                    break;
+                case BluetoothService.MESSAGE_READ:
+
+                    break;
+                case BluetoothService.MESSAGE_DEVICE_NAME:
+                    break;
+                case BluetoothService.MESSAGE_TOAST:
+                    break;
+                case BLUETOOTH_ENABLE_QR:
+                    BluetoothAdapter
+                            mAdapter = BluetoothAdapter.getDefaultAdapter();
+                    if (!mAdapter.isEnabled()) {
+                        mHandler.sendEmptyMessageDelayed(BLUETOOTH_ENABLE_QR, 1000);
+                    } else {
+                        if (payLoadingDialog != null) payLoadingDialog.dismiss();
+                        if (getServiceState() != BluetoothService.STATE_CONNECTED) {
+                            showDeviceDialog();
+                        } else {
+                            printContinue();
+                        }
+                    }
+
+                    break;
+            }
+        }
+    }
+
+    private void printContinue() {
+        if (print_step == PRINT_TYPE_ONE) {
+            if (mPrintOrderEntity != null) {
+                printOneDetail(mPrintOrderEntity);
+            } else {
+                Log.e("", "打印内容为空");
+            }
+        }
+        print_step = 0;
+    }
+    
+    private void printTotalContinue(){
+    	if (print_step == PRINT_TYPE_TOTAL) {
+            if (mPrintTotalEntity != null) {
+            	printTotal(mPrintTotalEntity);
+            } else {
+                Log.e("", "打印内容为空");
+            }
+        }
+        print_step = 0;
+    }
+    private void printDetailContinue(){
+    	if (print_step == PRINT_TYPE_DETAIL) {
+            if (mPrintDetailEntity != null) {
+            	printDetail(mPrintDetailEntity);
+            } else {
+                Log.e("", "打印内容为空");
+            }
+        }
+        print_step = 0;
+    }
+    private void printRefundContinue(){
+    	if (print_step == PRINT_TYPE_REFUND) {
+            if (mResponse != null) {
+            	printRufend(mResponse, printTime);
+            } else {
+                Log.e("", "打印内容为空");
+            }
+        }
+        print_step = 0;
+    }
+    
+    /**
+     * 打印
+     *
+     * @param message
+     */
+    public void sendMessage(String message) {
+
+        if (message.length() > 0) {
+            byte[] send;
+            try {
+                send = message.getBytes("GB2312");
+            } catch (UnsupportedEncodingException e) {
+                send = message.getBytes();
+            }
+
+            mBluetoothService.write(send);
+        }
+    }
+
+
+    public void printTotal(PrintTotalEntity entity) {
+        mBluetoothService.printSize(2);
+        mBluetoothService.printCenter();
+        sendMessage("当日汇总\n\n");
+        mBluetoothService.printLeft();
+        mBluetoothService.printSize(3);
+        sendMessage("- - - - - - - - - - - - - - - -\n\n");
+        sendMessage("收 银 员：" + entity.getCashierName() + "\n");
+        sendMessage("日    期：" + DateUtils.dateToStr("yyyy-MM-dd", entity.gettDate()) + "\n");
+        sendMessage("打印时间：" + DateUtils.dateToStr("yyyy-MM-dd HH:mm:ss", entity.gettDate()) + "\n\n");
+        sendMessage("现    金：" + entity.getCashMoney() + "元（" + entity.getCashCount() + "笔）\n");
+        sendMessage("银 行 卡：" + entity.getCardMoney() + "元（" + entity.getCardCount() + "笔）\n");
+        sendMessage("翼 支 付：" + entity.getBestMoney() + "元（" + entity.getBestCount() + "笔）\n");
+        sendMessage("支 付 宝：" + entity.getAliMoney() + "元（" + entity.getAliCount() + "笔）\n");
+        sendMessage("微信支付：" + entity.getWxMoney() + "元（" + entity.getWxCount() + "笔）\n\n");
+        sendMessage("总金额：" + entity.getTotalAmount() + "元（" + entity.getTotalItems() + "笔）\n\n\n");
+
+    }
+
+    public void printDetail(PrintDetailEntity entity) {
+        mBluetoothService.printSize(2);
+        mBluetoothService.printCenter();
+        sendMessage(" 当日明细\n\n");
+        mBluetoothService.printLeft();
+        mBluetoothService.printSize(3);
+        sendMessage("- - - - - - - - - - - - - - - -\n\n");
+        sendMessage("收 银 员：" + entity.getCashierName() + "\n");
+        sendMessage("日    期：" + DateUtils.dateToStr("yyyy-MM-dd", entity.gettDate()) + "\n");
+        sendMessage("打印时间：" + DateUtils.dateToStr("yyyy-MM-dd HH:mm:ss", entity.gettDate()) + "\n\n");
+        sendMessage("交易号             " + "时间  " + "金额\n");
+        List<PrintDetailItem> mList = entity.getmList();
+        for (int i = 0; i < mList.size(); i++) {
+            sendMessage(mList.get(i).getOrderNo() + " " + mList.get(i).getOrderTime().substring(11, 16) + " " + mList.get(i).getAmount() + "\n");
+        }
+        sendMessage("\n");
+        sendMessage("总金额：" + entity.getTotalAmount() + "元" + "（" + entity.getTotalItems() + "笔）" + "\n");
+        sendMessage("\n\n");
+    }
+
+
+    public void printOneDetail(PrintOrderEntity mPrintOrderEntity) {
+        mBluetoothService.printSize(2);
+        mBluetoothService.printCenter();
+        sendMessage("收款凭据\n\n");
+        mBluetoothService.printLeft();
+        mBluetoothService.printSize(3);
+        sendMessage("- - - - - - - - - - - - - - - -\n\n");
+        sendMessage("商户名：" + MyApplication.mDataCache.companyName + "\n");
+        sendMessage("商户号：" + MyApplication.mDataCache.companyCode + "\n");
+        sendMessage("分  店：" + mPrintOrderEntity.getShopName() + "\n");
+        sendMessage("操作员：" + spitAccount(mPrintOrderEntity.getAccount()) + "\n");
+        sendMessage("- - - - - - - - - - - - - - - -\n");
+        sendMessage("交易流水号：" + mPrintOrderEntity.getOrderId() + "\n");
+        sendMessage("支付方式：" + PayTypeEntity.getPayName(mPrintOrderEntity.getChannelType()) + "\n");
+        sendMessage("订单金额：" + mPrintOrderEntity.getAmount() + "元" + "\n");
+        sendMessage("订单编号：" + mPrintOrderEntity.getTransactionId() + "\n");
+        sendMessage("\n\n");
+    }
+
+    private String spitAccount(String account) {
+        String phoneNum = "";
+        phoneNum = account.substring(0, 3) + "*****" + account.substring(account.length() - 4, account.length());
+        return phoneNum;
+    }
+    
+    
+
+    public void printRufend(QrOrderMsgResponse response, String printTime) {
+        mBluetoothService.printSize(2);
+        mBluetoothService.printCenter();
+        sendMessage("退款凭据\n\n");
+        mBluetoothService.printLeft();
+        mBluetoothService.printSize(3);
+        sendMessage("- - - - - - - - - - - - - - - -\n");
+        sendMessage("门  店：" + response.getShop_name() + "\n");
+        sendMessage("操作员：" + response.getOper_name() + "\n");
+        sendMessage("- - - - - - - - - - - - - - - -\n\n");
+        sendMessage("交易流水号：" + response.getOrderId() + "\n");
+        sendMessage("交易时间：" + response.getOrderTime() + "\n");
+        sendMessage("退款时间：" + printTime + "\n");
+        sendMessage("订单金额：" + response.getAmount() + "\n");
+        sendMessage("退款金额：" + response.getAmount() + "\n");
+        sendMessage("\n\n");
+    }
+
+    /**
+     * 判断蓝牙连接，打印单笔明细
+     */
+    public void printOneDetailNew() {
+        print_step = PRINT_TYPE_ONE;
+        BluetoothAdapter
+                mAdapter = BluetoothAdapter.getDefaultAdapter();
+        //2、打开蓝牙
+        if (!mAdapter.isEnabled()) {
+            mAdapter.enable();
+            showWaitingDialog();
+            mHandler.sendEmptyMessageDelayed(BLUETOOTH_ENABLE_QR, 2000);
+        } else {
+            if (getServiceState() != BluetoothService.STATE_CONNECTED) {
+                showDeviceDialog();
+            } else {
+                printContinue();
+            }
+        }
+    }
+    
+    /**
+     * 判断蓝牙连接，打印汇总
+     */
+    public void printTotal() {
+        print_step = PRINT_TYPE_TOTAL;
+        BluetoothAdapter mAdapter = BluetoothAdapter.getDefaultAdapter();
+        //2、打开蓝牙
+        if (!mAdapter.isEnabled()) {
+            mAdapter.enable();
+            showWaitingDialog();
+            mHandler.sendEmptyMessageDelayed(BLUETOOTH_ENABLE_QR, 2000);
+        } else {
+            if (getServiceState() != BluetoothService.STATE_CONNECTED) {
+                showDeviceDialog();
+            } else {
+            	printTotalContinue();
+            }
+        }
+    }
+    
+    /**
+     * 判断蓝牙连接，打印细明
+     */
+    public void printDetail() {
+        print_step = PRINT_TYPE_DETAIL;
+        BluetoothAdapter mAdapter = BluetoothAdapter.getDefaultAdapter();
+        //2、打开蓝牙
+        if (!mAdapter.isEnabled()) {
+            mAdapter.enable();
+            showWaitingDialog();
+            mHandler.sendEmptyMessageDelayed(BLUETOOTH_ENABLE_QR, 2000);
+        } else {
+            if (getServiceState() != BluetoothService.STATE_CONNECTED) {
+                showDeviceDialog();
+            } else {
+            	printDetailContinue();
+            }
+        }
+    }
+    
+    /**
+     * 判断蓝牙连接，打印细明
+     */
+    public void printRefund() {
+        print_step = PRINT_TYPE_REFUND;
+        BluetoothAdapter mAdapter = BluetoothAdapter.getDefaultAdapter();
+        //2、打开蓝牙
+        if (!mAdapter.isEnabled()) {
+            mAdapter.enable();
+            showWaitingDialog();
+            mHandler.sendEmptyMessageDelayed(BLUETOOTH_ENABLE_QR, 2000);
+        } else {
+            if (getServiceState() != BluetoothService.STATE_CONNECTED) {
+                showDeviceDialog();
+            } else {
+            	printRefundContinue();
+            }
+        }
+    }
+    
+    private PayLoadingDialog payLoadingDialog;
+
+    private void showWaitingDialog() {
+        final PayLoadingDialog.Builder builder = new PayLoadingDialog.Builder(mContext);
+        builder.setContentMsg("蓝牙连接中......");
+        builder.setPositiveButton("取消打印", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                payLoadingDialog.dismiss();
+            }
+        });
+
+        payLoadingDialog = builder.create();
+        payLoadingDialog.show();
+    }
+
+    public void showDeviceDialog() {
+        DeviceListDialog deviceListDialog = new DeviceListDialog(mContext);
+        final DeviceListDialog.Builder builder = new DeviceListDialog.Builder(mContext);
+        builder.setOndeviceSelectListener(new DeviceListDialog.Builder.OndeviceSelectListener() {
+            @Override
+            public void onResult(String address) {
+                connect(address);
+            }
+        });
+        builder.create().show();
+    }
+
+    public PrintOrderEntity getmPrintOrderEntity() {
+        return mPrintOrderEntity;
+    }
+
+    public void setmPrintOrderEntity(PrintOrderEntity mPrintOrderEntity) {
+        this.mPrintOrderEntity = mPrintOrderEntity;
+    }
+
+	public PrintTotalEntity getmPrintTotalEntity() {
+		return mPrintTotalEntity;
+	}
+
+	public void setmPrintTotalEntity(PrintTotalEntity mPrintTotalEntity) {
+		this.mPrintTotalEntity = mPrintTotalEntity;
+	}
+
+	public PrintDetailEntity getmPrintDetailEntity() {
+		return mPrintDetailEntity;
+	}
+
+	public void setmPrintDetailEntity(PrintDetailEntity mPrintDetailEntity) {
+		this.mPrintDetailEntity = mPrintDetailEntity;
+	}
+
+	public QrOrderMsgResponse getmResponse() {
+		return mResponse;
+	}
+
+	public void setmResponse(QrOrderMsgResponse mResponse) {
+		this.mResponse = mResponse;
+	}
+
+	public String getPrintTime() {
+		return printTime;
+	}
+
+	public void setPrintTime(String printTime) {
+		this.printTime = printTime;
+	}
+	
+	
+	
+	
+	
+    
+    
+
+}

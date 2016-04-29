@@ -1,0 +1,180 @@
+/*
+ * 类文件名:  LimitItem.java
+ * 著作版权:  深圳市易商云电子商务有限公司 Copyright 2012-2022, E-mail: hongxiang_luo@esyto.com, All rights reserved
+ * 功能描述:  <描述>
+ * 类创建人:  罗洪祥
+ * 创建时间:  2015年10月28日
+ * 功能版本:  V001Z0001
+ */
+package com.ec2.yspay.http.cash;
+
+import java.io.Serializable;
+
+/**
+ * <一句话功能简述>
+ * <功能详细描述>
+ * 
+ * @author   罗洪祥
+ * @version  V001Z0001
+ * @date     2015年10月28日
+ * @see  [相关类/方法]
+ * @since  [产品/模块版本]
+ */
+public class StaffItem implements Serializable
+{
+    private String account;
+    private int duty;
+    private String status;
+    private String userName;
+    private boolean isCheck;
+    private String shopCode;
+    /**
+     * 获取 account
+     * @return 返回 account
+     */
+    public String getAccount()
+    {
+        return account;
+    }
+    /**
+     * 设置 account
+     * @param 对account进行赋值
+     */
+    public void setAccount(String account)
+    {
+        this.account = account;
+    }
+    /**
+     * 获取 duty
+     * @return 返回 duty
+     */
+    public int getDuty()
+    {
+        return duty;
+    }
+    /**
+     * 设置 duty
+     * @param 对duty进行赋值
+     */
+    public void setDuty(int duty)
+    {
+        this.duty = duty;
+    }
+    /**
+     * 获取 status
+     * @return 返回 status
+     */
+    public String getStatus()
+    {
+        return status;
+    }
+    /**
+     * 设置 status
+     * @param 对status进行赋值
+     */
+    public void setStatus(String status)
+    {
+        this.status = status;
+    }
+    public String getStatusName(){
+        /**1：正常
+        2：锁定
+        3：停用
+        4：删除*/
+        String name = "";
+        if("1".equals(status)){
+            name = "正常";
+        }else if("2".equals(status)){
+            name = "锁定";
+        }else if("3".equals(status)){
+            name = "停用";
+        }else if("4".equals(status)){
+            name = "删除";
+        }
+        return name;
+    }
+    /**
+     * 获取 userName
+     * @return 返回 userName
+     */
+    public String getUserName()
+    {
+        return userName;
+    }
+    /**
+     * 设置 userName
+     * @param 对userName进行赋值
+     */
+    public void setUserName(String userName)
+    {
+        this.userName = userName;
+    }
+    
+    /**
+     * 获取 isCheck
+     * @return 返回 isCheck
+     */
+    public boolean isCheck()
+    {
+        return isCheck;
+    }
+    /**
+     * 设置 isCheck
+     * @param 对isCheck进行赋值
+     */
+    public void setCheck(boolean isCheck)
+    {
+        this.isCheck = isCheck;
+    }
+    /** 
+     * <默认构造函数>
+     */
+    public StaffItem(String account, int duty, String status, String userName)
+    {
+        super();
+        this.account = account;
+        this.duty = duty;
+        this.status = status;
+        this.userName = userName;
+        isCheck = false;
+    }
+    /** 
+     * <默认构造函数>
+     */
+    public StaffItem()
+    {
+        super();
+        // TODO Auto-generated constructor stub
+        isCheck = false;
+    }
+    /**
+     * 获取 shopCode
+     * @return 返回 shopCode
+     */
+    public String getShopCode()
+    {
+        return shopCode;
+    }
+    /**
+     * 设置 shopCode
+     * @param 对shopCode进行赋值
+     */
+    public void setShopCode(String shopCode)
+    {
+        this.shopCode = shopCode;
+    }
+    /** 
+     * <默认构造函数>
+     */
+    public StaffItem(String account, int duty, String status, String userName, boolean isCheck, String shopCode)
+    {
+        super();
+        this.account = account;
+        this.duty = duty;
+        this.status = status;
+        this.userName = userName;
+        this.isCheck = isCheck;
+        this.shopCode = shopCode;
+    }
+    
+}

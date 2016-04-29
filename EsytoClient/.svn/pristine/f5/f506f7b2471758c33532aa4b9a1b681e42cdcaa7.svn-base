@@ -1,0 +1,235 @@
+/*
+ * 类文件名:  GetQrCodeResponse.java
+ * 著作版权:  深圳市易商云电子商务有限公司 Copyright 2012-2022, E-mail: hongxiang_luo@esyto.com, All rights reserved
+ * 功能描述:  <描述>
+ * 类创建人:  罗洪祥
+ * 创建时间:  2015年9月11日
+ * 功能版本:  V001Z0001
+ */
+package com.ec2.yspay.http.response;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.ec2.yspay.http.cash.ShopManagerItem;
+import com.ec2.yspay.http.request.ClientResult;
+
+/**
+ * <一句话功能简述>
+ * <功能详细描述>
+ * 
+ * @author   罗洪祥
+ * @version  V001Z0001
+ * @date     2015年9月11日
+ * @see  [相关类/方法]
+ * @since  [产品/模块版本]
+ */
+public class GetStoreMsgResponse extends Response
+{
+    private String shopName;
+    private String userName;
+    private String shopPhone;
+    private String shopAddress;
+    private String province;
+    private String city;
+    private String shopLogoImage;
+    private String shopLogoImageUrl;
+    private List<ShopManagerItem> managers = new ArrayList<ShopManagerItem>();
+    /**
+     * 重载方法
+     * @param result
+     * @return
+     */
+    @Override
+    public boolean parseResult(ClientResult result)
+    {
+        // TODO Auto-generated method stub
+        boolean res = parseCR(result);
+        if(isSuccess())
+        try {
+        	managers.clear();
+            String inputJson = getResultJson();
+            JSONObject jsonObject = new JSONObject(inputJson);
+            shopName = jsonObject.getString("shopName");
+            shopLogoImage = jsonObject.getString("shopLogoImage");
+            userName = jsonObject.getString("linkman");
+            shopPhone = jsonObject.getString("shopPhone");
+            shopAddress = jsonObject.getString("shopAddress");
+            province = jsonObject.getString("province");
+            city = jsonObject.getString("city");
+            shopLogoImageUrl = jsonObject.getString("shopLogoImageUrl");
+            JSONArray managerArray = jsonObject.getJSONArray("accounts");
+            if(managerArray!=null){
+            	for(int j = 0; j < managerArray.length() ; j++){ 
+            		JSONObject obj = ((JSONObject)managerArray.opt(j));
+            		if(obj==null)continue;
+            		String userName = obj.getString("userName");
+            		String account = obj.getString("account");
+            		ShopManagerItem mItem = new ShopManagerItem(userName, account, "");
+            		managers.add(mItem);
+            	}
+            }
+            res = true;
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+            res = false;
+            setIsSuccess(false);
+            setResultCode("002");
+            setResultDesc("解析失败");
+            return false;
+        }
+        return res;
+    }
+    
+    /**
+     * 获取 shopName
+     * @return 返回 shopName
+     */
+    public String getShopName()
+    {
+        return shopName;
+    }
+
+    /**
+     * 设置 shopName
+     * @param 对shopName进行赋值
+     */
+    public void setShopName(String shopName)
+    {
+        this.shopName = shopName;
+    }
+
+    /**
+     * 获取 shopPhone
+     * @return 返回 shopPhone
+     */
+    public String getShopPhone()
+    {
+        return shopPhone;
+    }
+
+    /**
+     * 设置 shopPhone
+     * @param 对shopPhone进行赋值
+     */
+    public void setShopPhone(String shopPhone)
+    {
+        this.shopPhone = shopPhone;
+    }
+
+    /**
+     * 获取 shopAddress
+     * @return 返回 shopAddress
+     */
+    public String getShopAddress()
+    {
+        return shopAddress;
+    }
+
+    /**
+     * 设置 shopAddress
+     * @param 对shopAddress进行赋值
+     */
+    public void setShopAddress(String shopAddress)
+    {
+        this.shopAddress = shopAddress;
+    }
+
+    /**
+     * 获取 shopLogoImage
+     * @return 返回 shopLogoImage
+     */
+    public String getShopLogoImage()
+    {
+        return shopLogoImage;
+    }
+
+    /**
+     * 设置 shopLogoImage
+     * @param 对shopLogoImage进行赋值
+     */
+    public void setShopLogoImage(String shopLogoImage)
+    {
+        this.shopLogoImage = shopLogoImage;
+    }
+
+    /**
+     * 获取 province
+     * @return 返回 province
+     */
+    public String getProvince()
+    {
+        return province;
+    }
+    /**
+     * 设置 province
+     * @param 对province进行赋值
+     */
+    public void setProvince(String province)
+    {
+        this.province = province;
+    }
+    /**
+     * 获取 city
+     * @return 返回 city
+     */
+    public String getCity()
+    {
+        return city;
+    }
+    /**
+     * 设置 city
+     * @param 对city进行赋值
+     */
+    public void setCity(String city)
+    {
+        this.city = city;
+    }
+    /**
+     * 获取 userName
+     * @return 返回 userName
+     */
+    public String getUserName()
+    {
+        return userName;
+    }
+    /**
+     * 设置 userName
+     * @param 对userName进行赋值
+     */
+    public void setUserName(String userName)
+    {
+        this.userName = userName;
+    }
+
+    /**
+     * 获取 shopLogoImageUrl
+     * @return 返回 shopLogoImageUrl
+     */
+    public String getShopLogoImageUrl()
+    {
+        return shopLogoImageUrl;
+    }
+
+    /**
+     * 设置 shopLogoImageUrl
+     * @param 对shopLogoImageUrl进行赋值
+     */
+    public void setShopLogoImageUrl(String shopLogoImageUrl)
+    {
+        this.shopLogoImageUrl = shopLogoImageUrl;
+    }
+
+	public List<ShopManagerItem> getManagers() {
+		return managers;
+	}
+
+	public void setManagers(List<ShopManagerItem> managers) {
+		this.managers = managers;
+	}
+    
+}

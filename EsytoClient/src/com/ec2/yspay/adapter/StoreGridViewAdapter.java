@@ -1,0 +1,101 @@
+package com.ec2.yspay.adapter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.common.Province;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.entity.ReportEntity;
+import com.ec2.yspay.http.cash.ShopItem;
+import com.ec2.yspay.widget.RoundProgressBar;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
+public class StoreGridViewAdapter extends BaseAdapter {
+	private List<ShopItem> shopList;
+	Context context;
+	public ImageLoader mImageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions mOptions;
+	public StoreGridViewAdapter(Context context, List<ShopItem> shopList) {
+		this.context = context;
+		this.shopList = shopList;
+		mOptions = new DisplayImageOptions.Builder()
+		.showImageOnLoading(R.drawable.company_default_logo)
+		.showImageForEmptyUri(R.drawable.company_default_logo)
+		.showImageOnFail(R.drawable.company_default_logo).cacheInMemory(true)
+		.cacheOnDisc(true).bitmapConfig(Bitmap.Config.RGB_565).build();
+	}
+
+	@Override
+	public int getCount() {
+		return shopList.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return shopList.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+
+	@Override
+	public View getView(final int position, View convertView, ViewGroup parent) {
+	    ViewHolder viewHolder = null;
+	    if(convertView == null){
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_gridview_store, null);          
+            viewHolder=new ViewHolder();
+            viewHolder.tv_name = (TextView)convertView.findViewById(R.id.tv_paynum);
+            viewHolder.iv_logo = (ImageView)convertView.findViewById(R.id.iv_logo);
+            
+            convertView.setTag(viewHolder);
+        }else{
+            viewHolder = (ViewHolder)convertView.getTag();
+        }
+	    
+	    ShopItem entity = shopList.get(position);
+	    if(Toolkits.isStrEmpty(entity.getShopCode())){
+	    	viewHolder.tv_name.setText("");   
+	    	viewHolder.iv_logo.setImageResource(R.drawable.store_add_icon);
+	    }else{
+	        viewHolder.tv_name.setText(entity.getShopName());    
+	        loadImage(entity.getShoplogoImageurl(),viewHolder.iv_logo,mOptions);
+	    }
+//	    if(position==shopList.size()-1){
+//	    	viewHolder.tv_name.setText("");   
+//	    	viewHolder.iv_logo.setImageResource(R.drawable.store_add_icon);
+//	    }else{
+//		    ShopItem entity = shopList.get(position);
+//	        viewHolder.tv_name.setText(entity.getShopName());    
+//	        loadImage(entity.getShoplogoImageurl(),viewHolder.iv_logo,mOptions);
+//	    }
+        return convertView;
+	}
+	class ViewHolder {
+        ImageView iv_logo;
+        TextView tv_name;
+	}
+	public void loadImage(String uri, ImageView iv, DisplayImageOptions options) {
+		if (options == null) {
+			options = mOptions;
+		}
+		mImageLoader.displayImage(uri, iv, options);
+	}
+	
+    
+
+}

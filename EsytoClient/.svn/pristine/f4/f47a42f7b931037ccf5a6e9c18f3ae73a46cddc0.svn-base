@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:client="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="105dp"
+    android:orientation="horizontal"
+    android:background="@color/white"
+    android:gravity="center_vertical"
+    android:id="@+id/ll_parent">
+    <RelativeLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="105dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp">
+        <com.ec2.yspay.widget.RoundImageViewNoBorder
+            android:id="@+id/iv_store_icon"
+	        android:layout_width="75dp"
+	        android:layout_height="75dp"
+            android:layout_centerVertical="true"
+        	android:src="@drawable/company_default_logo" 
+            client:borderRadius="45dp"
+            client:type="round" />
+        <TextView 
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/iv_store_icon"
+            android:layout_marginLeft="10dp"
+            android:layout_centerVertical="true"
+            android:text="的飞洒厦门店范德萨"
+            android:textSize="18sp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:maxEms="10"
+            android:textColor="@color/black_1"
+            />
+        <ImageView 
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow72_72"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"/>
+        
+        <TextView 
+            android:id="@+id/head_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/next"
+            android:layout_marginLeft="10dp"
+            android:layout_centerVertical="true"
+            android:text="20人"
+            android:textSize="15sp"
+            android:textColor="@color/black_3"
+            />
+    </RelativeLayout>
+</LinearLayout>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="@color/white"
+        >
+    <ImageView android:layout_width="fill_parent"
+	    android:layout_height="1dp"
+	    android:src="@color/line_gray"/>
+	<RelativeLayout 
+	    android:id="@+id/rl_sure"
+	    android:layout_width="fill_parent"
+	    android:layout_height="50dp">
+	    <TextView style="@style/textview_title_blue"
+	        android:text="确定"
+	        android:layout_centerInParent="true"/>
+	</RelativeLayout>
+	<ImageView android:layout_width="fill_parent"
+	    android:layout_height="0.5dp"
+	    android:src="@color/line_gray"/>
+	<LinearLayout 
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    android:layout_marginLeft="18dp"
+	    android:layout_marginRight="18dp"
+	    android:layout_marginTop="10dp"
+	    android:layout_marginBottom="20dp">
+	    <TextView 
+		    style="@style/textview_gray"
+		    android:textSize="16dp"
+		    android:text="旧密码"/>
+	    <EditText 
+	        android:id="@+id/et_pwd_old"
+	        style="@style/editText_gray_style"
+	        android:layout_marginTop="10dp"
+	        android:hint="请输入旧密码"
+	        android:inputType="textPassword"
+	        android:layout_gravity="center_horizontal"/>
+	    <TextView 
+		    style="@style/textview_gray"
+		    android:textSize="16dp"
+		    android:layout_marginTop="12dp"
+		    android:text="新密码"/>
+	    <EditText 
+	        android:id="@+id/et_pwd_new"
+	        style="@style/editText_gray_style"
+	        android:layout_marginTop="10dp"
+	        android:inputType="textPassword"
+	        android:hint="请输入新密码"
+	        android:layout_gravity="center_horizontal"/>
+	    <TextView 
+		    style="@style/textview_gray"
+		    android:textSize="16dp"
+		    android:layout_marginTop="10dp"
+		    android:text="确认密码"/>
+	    <EditText 
+	        android:id="@+id/et_pwd_sec"
+	        style="@style/editText_gray_style"
+	        android:layout_marginTop="10dp"
+	        android:hint="请再次确认密码"
+	        android:inputType="textPassword"
+	        android:layout_gravity="center_horizontal"/>
+	</LinearLayout>
+	
+
+
+</LinearLayout>
+

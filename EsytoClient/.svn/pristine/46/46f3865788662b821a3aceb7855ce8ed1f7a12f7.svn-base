@@ -1,0 +1,107 @@
+package com.ec2.yspay.adapter;
+
+import java.util.List;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.entity.PayTypeEntity;
+import com.ec2.yspay.http.cash.ObjList;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+public class OrderQueryAdapter extends BaseAdapter {
+	private Context context;
+	private List<ObjList> mList;
+	private PayTypeEntity mPayTypeEnTity;
+	public OrderQueryAdapter(Context context,List<ObjList> list) {
+		this.context = context;
+		this.mList = list;
+		
+	}
+
+	@Override
+	public int getCount() {
+		return mList.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return mList.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		ViewHolder holder = null;
+		if(convertView == null){
+			convertView = LayoutInflater.from(context).inflate(R.layout.adapter_orderquery_item, null);
+			holder = new ViewHolder();
+			holder.mDayTextView = (TextView)convertView.findViewById(R.id.day_textview);
+			holder.mHouseAndMinTextView = (TextView) convertView.findViewById(R.id.hourandmin);
+			holder.mPaymentImageView = (ImageView) convertView.findViewById(R.id.payment_imageview);
+			holder.mPaymentTextView = (TextView) convertView.findViewById(R.id.payment_textview);
+			holder.mOrderMothedTextView = (TextView) convertView.findViewById(R.id.ordertextview);
+			holder.mMoneyTextView = (TextView) convertView.findViewById(R.id.money_textview);
+			convertView.setTag(holder);
+		}else {
+			holder = (ViewHolder) convertView.getTag();
+		}
+		ObjList item =(ObjList) getItem(position);
+		holder.mPaymentTextView.setText(mPayTypeEnTity.getPayName(item.getChannelType()));
+		
+		if(item!=null){
+			String time = item.getOrderTime();
+	        String day = time.substring(0,10);
+	        String hourandmin = time.substring(11,16);
+	        String channelType = item.getChannelType();
+	        String status = item.getStatus();
+	        String amount = item.getAmount();
+	        holder.mDayTextView.setText(day);
+	        holder.mHouseAndMinTextView.setText(hourandmin);
+	        holder.mPaymentTextView.setText(mPayTypeEnTity.getPayName(channelType));
+	        holder.mPaymentImageView.setImageResource(mPayTypeEnTity.get96ImgId(channelType));
+	        if(status.equals("1")){
+	        	
+	        }else if(status.equals("2")){
+				
+			}else if(status.equals("3")){
+				holder.mOrderMothedTextView.setText("收款");
+				holder.mOrderMothedTextView.setTextColor(context.getResources().getColor(R.color.black_1));
+				holder.mMoneyTextView.setText(amount);
+				holder.mMoneyTextView.setTextColor(context.getResources().getColor(R.color.black_1));
+			}else if(status.equals("4")){
+				
+			}else if(status.equals("5")){
+				holder.mOrderMothedTextView.setText("退款");
+				holder.mOrderMothedTextView.setTextColor(context.getResources().getColor(R.color.btn_text_red));
+				holder.mMoneyTextView.setText(" - "+amount);
+				holder.mMoneyTextView.setTextColor(context.getResources().getColor(R.color.btn_text_red));
+			}else if(status.equals("6")){
+				holder.mOrderMothedTextView.setText("撤销");
+				holder.mOrderMothedTextView.setTextColor(context.getResources().getColor(R.color.btn_text_red));
+				holder.mMoneyTextView.setText(" - "+amount);
+				holder.mMoneyTextView.setTextColor(context.getResources().getColor(R.color.btn_text_red));
+			}
+		}
+		return convertView;
+	}
+
+	class ViewHolder{
+		private TextView mDayTextView;
+		private TextView mHouseAndMinTextView;
+		private TextView mPaymentTextView;
+		private TextView mMoneyTextView;
+		private TextView mOrderMothedTextView;
+		private ImageView mPaymentImageView;
+		
+	}
+}

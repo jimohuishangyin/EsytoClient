@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/black_3" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/padding_parent" >
+
+            <TextView
+                android:id="@+id/tv_time"
+                style="@style/textview_black"
+                android:layout_marginTop="12dp"
+                android:text="" />
+
+            <TextView
+                android:id="@+id/tv_orderId"
+                style="@style/textview_black"
+                android:layout_marginTop="@dimen/print_margin_textveiw"
+                android:text="交易流水号：" />
+
+            <TextView
+                android:id="@+id/tv_pznum"
+                style="@style/textview_black"
+                android:layout_marginTop="@dimen/print_margin_textveiw"
+                android:text="支付方式："
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_money"
+                style="@style/textview_black"
+                android:layout_marginTop="@dimen/print_margin_textveiw"
+                android:text="金额：0.00元" />
+
+            <TextView
+                android:id="@+id/tv_remark"
+                style="@style/textview_black"
+                android:layout_marginBottom="12dp"
+                android:layout_marginTop="@dimen/print_margin_textveiw"
+                android:text="备注：" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/arrow72_72_over" />
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/black_3" />
+
+</LinearLayout>

@@ -1,0 +1,226 @@
+package com.ec2.yspay.test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ec2.yspay.common.ToastUtils;
+
+import android.app.ExpandableListActivity;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
+import android.widget.TextView;
+import android.widget.Toast;
+/**
+ * 测试界面入口
+ * @author   罗洪祥
+ * @version  V001Z0001
+ * @date     2015年9月15日
+ * @see  [相关类/方法]
+ * @since  [产品/模块版本]
+ */
+public class TestActivity extends ExpandableListActivity {
+    private final static String TAG = "TestActivity";
+    private Context mContext;
+    private List<GroupInfo> mGroupList;
+    private ExpandableListAdapter mAdapter;
+    
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mContext = this;
+        initGroupInfoList();
+        mAdapter = new MyExpandableListAdapter();
+        setListAdapter(mAdapter);
+        
+//        DateWheelSelector timeselector1 = new DateWheelSelector(
+//				mContext, new ChineseDateInfo(), "");
+//		timeselector1.showMenu();
+		
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    private interface CallBackForTest {
+        void execute();
+    }
+
+    private class ItemInfo {
+        String mItemName;
+        CallBackForTest mFunc;
+
+        ItemInfo(String name, CallBackForTest func) {
+            mItemName = name;
+            mFunc = func;
+        }
+    }
+
+    private class GroupInfo {
+        String mGroupName;
+        List<ItemInfo> mChildList;
+
+        GroupInfo(String name) {
+            mGroupName = name;
+            mChildList = new ArrayList<ItemInfo>();
+        }
+    }
+
+    @Override
+    public boolean onChildClick(ExpandableListView parent, View v,
+            int groupPosition, int childPosition, long id) {
+        // 执行预设的回调函数
+        mGroupList.get(groupPosition).mChildList.get(childPosition).mFunc
+                .execute();
+        return super.onChildClick(parent, v, groupPosition, childPosition, id);
+    }
+
+    /**
+     * 加载组和子项
+     */
+    private void initGroupInfoList() {
+        GroupInfo groupInfo;
+        mGroupList = new ArrayList<GroupInfo>();
+
+        
+        groupInfo = new GroupInfo("测试，罗洪祥");
+        mGroupList.add(groupInfo);
+        groupInfo.mChildList.add(new ItemInfo("测试接口",
+                new CallBackForTest() {
+                    @Override
+                    public void execute() {
+                        TestInterface testInterface =  new TestInterface(mContext);
+                        testInterface.test();
+                    }
+                }));
+        groupInfo.mChildList.add(new ItemInfo("预下单请求",
+            new CallBackForTest() {
+                @Override
+                public void execute() {
+                    TestInterface testInterface =  new TestInterface(mContext);
+                    testInterface.getQRCodeTest();
+                }
+            }));
+        
+        groupInfo = new GroupInfo("测试，仲明");
+        mGroupList.add(groupInfo);
+        groupInfo.mChildList.add(new ItemInfo("测试接口11",
+                new CallBackForTest() {
+                    @Override
+                    public void execute() {
+                        TestInterface testInterface =  new TestInterface(mContext);
+                        testInterface.test();
+                    }
+                }));
+        groupInfo.mChildList.add(new ItemInfo("测试接口11",
+            new CallBackForTest() {
+                @Override
+                public void execute() {
+                    TestInterface testInterface =  new TestInterface(mContext);
+                    testInterface.loginTest();
+                }
+            }));
+        
+        
+       
+    }
+
+    
+   
+
+    public class MyExpandableListAdapter extends BaseExpandableListAdapter {
+        public Object getChild(int groupPosition, int childPosition) {
+            return mGroupList.get(groupPosition).mChildList.get(childPosition);
+        }
+
+        public long getChildId(int groupPosition, int childPosition) {
+            return childPosition;
+        }
+
+        public int getChildrenCount(int groupPosition) {
+            return mGroupList.get(groupPosition).mChildList.size();
+        }
+
+        public TextView getGenericView() {
+            AbsListView.LayoutParams layoutParams = new AbsListView.LayoutParams(
+                    ViewGroup.LayoutParams.FILL_PARENT, 64);
+
+            TextView textView = new TextView(TestActivity.this);
+            textView.setLayoutParams(layoutParams);
+            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+            textView.setPadding(48, 0, 0, 0);
+            return textView;
+        }
+
+        public View getChildView(int groupPosition, int childPosition,
+                boolean isLastChild, View convertView, ViewGroup parent) {
+            TextView textView = getGenericView();
+            textView.setText(">"
+                    + ((ItemInfo) getChild(groupPosition, childPosition)).mItemName);
+            return textView;
+        }
+
+        public Object getGroup(int groupPosition) {
+            return mGroupList.get(groupPosition);
+        }
+
+        public int getGroupCount() {
+            return mGroupList.size();
+        }
+
+        public long getGroupId(int groupPosition) {
+            return groupPosition;
+        }
+
+        public View getGroupView(int groupPosition, boolean isExpanded,
+                View convertView, ViewGroup parent) {
+            TextView textView = getGenericView();
+            textView.setText(((GroupInfo) getGroup(groupPosition)).mGroupName);
+            return textView;
+        }
+
+        public boolean isChildSelectable(int groupPosition, int childPosition) {
+            return true;
+        }
+
+        public boolean hasStableIds() {
+            return true;
+        }
+
+    }
+    public static String getPhoneModel(){
+        String phonemodel = android.os.Build.MODEL;
+        phonemodel = phonemodel.replace("&", "_");//兼容<"&" 字符在xml中是特殊字符,必须转化>
+        return phonemodel;
+    }
+    
+    private void showToast(String msg){
+        ToastUtils.show(mContext,msg);
+    }
+    
+    
+    
+}

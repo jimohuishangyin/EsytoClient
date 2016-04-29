@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    android:id="@+id/ll_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/zffsbg_normal"
+    android:orientation="horizontal" 
+    android:gravity="center_vertical">
+    <ImageView 
+        android:id="@+id/iv_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/icon_paika"/>
+    <TextView
+        android:id="@+id/tv_content"
+        style="@style/textview_gray"
+        android:layout_marginLeft="15dp"
+        android:text="号码支付或拍卡"/>
+</LinearLayout>

@@ -1,0 +1,471 @@
+package com.ec2.yspay.fragment;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TabHost;
+import android.widget.TabHost.OnTabChangeListener;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.activity.ShopListViewActivity;
+import com.ec2.yspay.common.DateUtils;
+import com.ec2.yspay.common.ShopManager;
+import com.ec2.yspay.common.ToastUtils;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.entity.PayTypeEntity;
+import com.ec2.yspay.entity.ReportExpandableListItem;
+import com.ec2.yspay.entity.ReportFormEntity;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.cash.StaffItem;
+import com.ec2.yspay.http.response.GetStaffListResponse;
+import com.ec2.yspay.http.response.ReportDetailsResponse;
+import com.ec2.yspay.http.response.ReportFormResponse;
+import com.ec2.yspay.http.response.ReportUserDefinedResponse;
+import com.ec2.yspay.http.task.GetStaffListTask;
+import com.ec2.yspay.http.task.ReportUserDefinedFormTask;
+import com.ec2.yspay.http.task.ReportUserDefinedTask;
+import com.ec2.yspay.widget.DateTimePickDialogUtil;
+import com.ec2.yspay.widget.DateTimePickDialogUtil.OnDatePickListener;
+
+/**
+ * 日报表
+ * 
+ * @author   罗洪祥
+ * @version  V001Z0001
+ * @date     2015年10月8日
+ * @see  [相关类/方法]
+ * @since  [产品/模块版本]
+ */
+public class ReportUserDefinedFragment extends Fragment implements OnClickListener{
+    private static final String TAG = "number";
+    private static final long MAXBETWEENDAY = 30;
+    private Context mContext;
+    private View view;
+    private LayoutInflater inflater;
+    private TabHost tabHost;
+    private RelativeLayout rlTabLeft,rlTabRight;
+    Fragment frag; 
+    private TextView tvMingxi,tvBaobiao;
+    private int mYear,mMonth,mDay,mEndYear,mEndMonth,mEndDay;  
+    private TextView tvName;
+    private ReportTabRightFragment rightFragment;
+    private ReportTabLeftFragment leftFragment;
+    private TextView tvMoney,tvCount;
+    private List<StaffItem> staffList;
+    private String[] nameStrs; 
+    private Integer[] payId = new Integer[]{PayTypeEntity.PAY_CASH,PayTypeEntity.PAY_UNION
+        ,PayTypeEntity.PAY_ALI,PayTypeEntity.PAY_BEST,PayTypeEntity.PAY_WX };
+    private String[] payName = new String[]{"全部",PayTypeEntity.getPayName(payId[0]),PayTypeEntity.getPayName(payId[1])
+        ,PayTypeEntity.getPayName(payId[2]),PayTypeEntity.getPayName(payId[3]),PayTypeEntity.getPayName(payId[4])};
+    private TextView tvBeginDate,tvEndDate,tvStaffName,tvPayType;
+    private String mAccount = "",mChannelType="";
+    private RelativeLayout rlShopLayout;
+    private TextView tvShopName;
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        this.inflater = inflater;
+        view = inflater.inflate(R.layout.fragment_report_userdefined, null);
+        mContext = getActivity();
+        mEndYear=mYear = DateUtils.getYear();
+        mEndMonth=mMonth = DateUtils.getMonth();
+        mEndDay=mDay = DateUtils.getDay();
+        rlTabLeft = (RelativeLayout)view.findViewById(R.id.rl_tab_left);
+        rlTabRight = (RelativeLayout)view.findViewById(R.id.rl_tab_right);
+        tvMoney = (TextView)view.findViewById(R.id.tv_money);
+        tvCount = (TextView)view.findViewById(R.id.tv_count);
+        tvStaffName = (TextView)view.findViewById(R.id.tv_staff_name);
+        tvBeginDate = (TextView)view.findViewById(R.id.tv_begin_date);
+        tvEndDate = (TextView)view.findViewById(R.id.tv_end_date);
+        tvPayType = (TextView)view.findViewById(R.id.tv_pay_name);
+        tvBeginDate.setText(mYear+"-"+mMonth+"-"+mDay);
+        tvEndDate.setText(mEndYear+"-"+mEndMonth+"-"+mEndDay);
+        rlTabLeft.setOnClickListener(this);
+        rlTabRight.setOnClickListener(this);
+        tvName = (TextView)view.findViewById(R.id.tv_name);
+        tvStaffName.setOnClickListener(this);
+        tvBeginDate.setOnClickListener(this);
+        tvEndDate.setOnClickListener(this);
+        tvPayType.setOnClickListener(this);
+        tvMingxi = (TextView)view.findViewById(R.id.tv_mingxi);
+        tvBaobiao = (TextView)view.findViewById(R.id.tv_baobiao);
+        leftFragment = new ReportTabLeftFragment();
+        rightFragment = new ReportTabRightFragment();
+        tabHost = (TabHost)view.findViewById(android.R.id.tabhost);
+        //调用 TabHost.setup()
+        tabHost.setup();
+        tabHost.setOnTabChangedListener(new OnTabChangeListener() {  
+            
+            @Override  
+            public void onTabChanged(String tabId) {  
+                FragmentTransaction ft = getFragmentManager().beginTransaction();  
+                Fragment frag = null;
+                if (TextUtils.equals("first", tabId)) {  
+                    //add/replace fragment first  
+                    frag = leftFragment;  
+                } else if (TextUtils.equals("second", tabId)) {  
+                    //add/replace fragment second  
+                    frag = rightFragment;  
+                }
+                ft.replace(android.R.id.tabcontent, frag, "frag");  
+                ft.commit();
+            }  
+        });  
+        rlShopLayout = (RelativeLayout) view.findViewById(R.id.rl_shop);
+        rlShopLayout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent intent = new Intent(mContext, ShopListViewActivity.class);
+				startActivityForResult(intent, 101);
+			}
+		});
+        tvShopName = (TextView) view.findViewById(R.id.tv_shopName);
+        tvShopName.setText(ShopManager.getInstance(mContext).getCurrentShopName());
+        tabHost.addTab(tabHost.newTabSpec("first").setIndicator("First")  
+                .setContent(new DummyTabFactory(mContext)));  
+        tabHost.addTab(tabHost.newTabSpec("second").setIndicator("Second")//setIndicator 设置标签样式  
+                .setContent(new DummyTabFactory(mContext))); //setContent 点击标签后触发  
+        // tabHost.setCurrentTab(0);//zzm设置默认值ＴＡＢ
+        onClick(view.findViewById(R.id.rl_tab_right));//zzm设置默认值ＴＡＢ
+//        getDayDetails();
+        getAccountInfos();
+        return view;
+    }
+    /**
+     * <一句话功能简述>
+     * <功能详细描述>
+     * 
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年11月2日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    private void getAccountInfos()
+    {
+        // TODO Auto-generated method stub
+        GetStaffListTask task = new GetStaffListTask(mContext);
+        task.setProgressVisiable(true);
+        task.setShopCode(ShopManager.getInstance(mContext).getCurrentShopCode());
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                GetStaffListResponse response = (GetStaffListResponse)obj;
+                staffList = response.getStaffList();
+                nameStrs = new String[staffList.size()+1];
+                nameStrs[0]="全部";
+                for(int i = 1;i<=staffList.size();i++){
+                    StaffItem item = staffList.get(i-1);
+                    if(Toolkits.isStrEmpty(item.getUserName())){
+                        nameStrs[i]="未定义";
+                    }else{
+                        nameStrs[i]=item.getUserName();
+                    }
+                }
+                getDayDetails();
+                getFormMsg();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                GetStaffListResponse response = (GetStaffListResponse)obj;
+	            ToastUtils.show(mContext, response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+    static class DummyTabFactory implements TabHost.TabContentFactory {  
+        private Context context;  
+        public DummyTabFactory(Context ctx) {  
+            this.context = ctx;  
+        }  
+        @Override  
+        public View createTabContent(String tag) {//创建宽高均为0的view   
+            View v = new ImageView(context);  
+            v.setMinimumWidth(0);  
+            v.setMinimumHeight(0);  
+            return v;  
+        }  
+          
+    }
+    /**
+     * 重载方法
+     * @param v
+     */
+    @Override
+    public void onClick(View v)
+    {
+        // TODO Auto-generated method stub
+        switch (v.getId())
+        {
+            case R.id.rl_tab_left:
+                tvMingxi.setTextColor(getResources().getColor(R.color.white));
+                tvBaobiao.setTextColor(getResources().getColor(R.color.text_gray));
+                rlTabLeft.setBackgroundColor(getResources().getColor(R.color.report_purple));
+                rlTabRight.setBackgroundColor(getResources().getColor(R.color.white));
+                tabHost.setCurrentTab(0);
+                break;
+            case R.id.rl_tab_right:
+                tvMingxi.setTextColor(getResources().getColor(R.color.text_gray));
+                tvBaobiao.setTextColor(getResources().getColor(R.color.white));
+                rlTabLeft.setBackgroundColor(getResources().getColor(R.color.white));
+                rlTabRight.setBackgroundColor(getResources().getColor(R.color.report_purple));
+                tabHost.setCurrentTab(1);
+                break;
+            case R.id.tv_begin_date:
+                showBeginDayPicker();
+                break;
+            case R.id.tv_end_date:
+                showEndDayPicker();
+                break;
+            case R.id.tv_staff_name:
+                showStaffPicker();
+                break;
+            case R.id.tv_pay_name:
+                showPayTypePicker();
+                break;
+            default:
+                break;
+        }
+    } 
+    public void showBeginDayPicker(){
+        DateTimePickDialogUtil dateTimePicKDialog = new DateTimePickDialogUtil(mContext, mYear+"年"+mMonth+"月"+mDay+"日 14:44");
+        dateTimePicKDialog.setOnDatePickListener(new OnDatePickListener()
+        {
+            @Override
+            public void onResult(int year, int month, int day)
+            {
+                // TODO Auto-generated method stub
+                Date startDate = DateUtils.strToDate("yyyy-MM-dd", year+"-"+(month+1)+"-"+day);
+                Date endDate = DateUtils.strToDate("yyyy-MM-dd", mEndYear+"-"+mEndMonth+"-"+mEndDay);
+                long dayNum = DateUtils.getDaysBetween(startDate, endDate);
+                if(dayNum<0){
+                    showToast("开始时间不能大于结束时间！");
+                    return;
+                }
+                if(dayNum>MAXBETWEENDAY){
+                    showToast("间隔天数不得超过"+MAXBETWEENDAY+"天！");
+                    return;
+                }
+                mYear = year;
+                mMonth = month+1;
+                mDay = day;
+                tvBeginDate.setText(mYear+"-"+mMonth+"-"+mDay);
+                getFormMsg();
+                getDayDetails();
+            }
+        });
+        dateTimePicKDialog.dateTimePicKDialog();
+    }
+    public void showEndDayPicker() {
+        DateTimePickDialogUtil dateTimePicKDialog = new DateTimePickDialogUtil(mContext, mEndYear+"年"+mEndMonth+"月"+mEndDay+"日 14:44");
+        dateTimePicKDialog.setOnDatePickListener(new OnDatePickListener()
+        {
+            
+            @Override
+            public void onResult(int year, int month, int day)
+            {
+                // TODO Auto-generated method stub
+                Date startDate = DateUtils.strToDate("yyyy-MM-dd", mYear+"-"+mMonth+"-"+mDay);
+                Date endDate = DateUtils.strToDate("yyyy-MM-dd", year+"-"+(month+1)+"-"+day);
+                long dayNum = DateUtils.getDaysBetween(startDate, endDate);
+                if(dayNum<0){
+                    showToast("开始时间不能大于结束时间！");
+                    return;
+                }
+                if(dayNum>MAXBETWEENDAY){
+                    showToast("间隔天数不得超过"+MAXBETWEENDAY+"天！");
+                    return;
+                }
+                mEndYear = year;
+                mEndMonth = month+1;
+                mEndDay = day;
+                
+                
+                tvEndDate.setText(mEndYear+"-"+mEndMonth+"-"+mEndDay);
+                getFormMsg();
+                getDayDetails();
+            }
+        });
+        dateTimePicKDialog.dateTimePicKDialog();
+    }
+    private RadioOnClick radioOnClick = new RadioOnClick(1); 
+    public void showStaffPicker() {
+        AlertDialog ad =new AlertDialog.Builder(mContext).setTitle("选择用户")  
+            .setSingleChoiceItems(nameStrs,radioOnClick.getIndex(),radioOnClick).create();  
+            ad.show();
+    }
+    class RadioOnClick implements DialogInterface.OnClickListener{  
+        private int index;  
+        
+        public RadioOnClick(int index){  
+         this.index = index;  
+        }  
+        public void setIndex(int index){  
+         this.index=index;  
+        }  
+        public int getIndex(){  
+         return index;  
+        }
+        /**
+         * 重载方法
+         * @param dialog
+         * @param which
+         */
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            // TODO Auto-generated method stub
+            index = which;
+//            Toast.makeText(mContext, "您已经选择了： " + index + ":" + nameStrs[index], Toast.LENGTH_LONG).show();  
+            dialog.dismiss();  
+            tvStaffName.setText(nameStrs[index]);
+            if(index>0)mAccount = staffList.get(index-1).getAccount();
+            else mAccount="";
+            getFormMsg();
+            getDayDetails();
+            
+        }  
+    }
+    private PayTypeRadioOnClick payTypeRadioOnClick = new PayTypeRadioOnClick(0); 
+    public void showPayTypePicker() {
+        AlertDialog ad =new AlertDialog.Builder(mContext).setTitle("选择支付方式")  
+            .setSingleChoiceItems(payName,payTypeRadioOnClick.getIndex(),payTypeRadioOnClick).create();  
+            ad.show();
+    }
+    class PayTypeRadioOnClick implements DialogInterface.OnClickListener{  
+        private int index;  
+        
+        public PayTypeRadioOnClick(int index){  
+         this.index = index;  
+        }  
+        public void setIndex(int index){  
+         this.index=index;  
+        }  
+        public int getIndex(){  
+         return index;  
+        }
+        /**
+         * 重载方法
+         * @param dialog
+         * @param which
+         */
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            // TODO Auto-generated method stub
+            index = which;
+//            Toast.makeText(mContext, "您已经选择了： " + index + ":" + nameStrs[index], Toast.LENGTH_LONG).show();  
+            dialog.dismiss();  
+            tvPayType.setText(payName[index]);
+            if(index>0)mChannelType = payId[index-1]+"";
+            else mChannelType="";
+            getFormMsg();
+            getDayDetails();
+            
+        }  
+    }
+    private void getDayDetails(){
+        String beginTime = mYear+"-"+mMonth+"-"+mDay;
+        String endTime = mEndYear+"-"+mEndMonth+"-"+mEndDay;
+        ReportUserDefinedTask task = new ReportUserDefinedTask(mContext,beginTime,endTime);
+        task.setProgressVisiable(true);
+        task.setShopCode(ShopManager.getInstance(mContext).getCurrentShopCode());
+        task.setAccount(mAccount);
+        task.setChannelType(mChannelType);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                ReportUserDefinedResponse response = (ReportUserDefinedResponse)obj;
+                tvMoney.setText(response.getTotalAmount());
+                tvCount.setText(response.getTotalItems());
+                leftFragment.setList(response.getDetailList());
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                ReportUserDefinedResponse response = (ReportUserDefinedResponse)obj;
+	            ToastUtils.show(mContext, response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+    private void getFormMsg(){
+        rightFragment.setIsLoading();
+        String beginTime = mYear+"-"+mMonth+"-"+mDay;
+        String endTime = mEndYear+"-"+mEndMonth+"-"+mEndDay;
+        ReportUserDefinedFormTask task = new ReportUserDefinedFormTask(mContext, beginTime,endTime);
+        task.setAccount(mAccount);
+        task.setShopCode(ShopManager.getInstance(mContext).getCurrentShopCode());
+        task.setChannelType(mChannelType);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                ReportFormResponse response = (ReportFormResponse)obj;
+                ReportFormEntity formEntity = new ReportFormEntity();
+                formEntity.setFormList(response.getCollectInfos());
+                if(tabHost.getCurrentTab()==1){
+                    rightFragment.setFormEntieyUpdate(formEntity);
+                }else{
+                    rightFragment.setFormEntiey(formEntity);
+                }
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                rightFragment.setNoData();
+                ReportFormResponse response = (ReportFormResponse)obj;
+	            ToastUtils.show(mContext, response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+    private void showToast(String msg){
+        ToastUtils.show(mContext,msg);
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	if(requestCode==101&&resultCode==100){
+    		tvShopName.setText(ShopManager.getInstance(mContext).getCurrentShopName());
+    		getFormMsg();
+            getDayDetails();
+    	}
+    }
+}

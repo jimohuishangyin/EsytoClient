@@ -1,0 +1,207 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:client="http://schemas.android.com/apk/res/com.ec2.yspay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <com.ec2.yspay.widget.MyTitle
+        android:id="@+id/rl_top"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        client:isShowLeft="true"
+        client:titleName="交易详情" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginLeft="15dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="交易金额"
+            android:textColor="@color/black_3"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_money"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="10dp"
+            android:gravity="right|center_vertical"
+            android:text="120.00"
+            android:textColor="@color/money_text_blue_color"
+            android:textSize="24sp" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/black_3" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="14dp"
+        android:background="@color/month_bg_color" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/black_3" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                style="@style/textview_order_query_detail_ds"
+                android:text="支付方式" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:paddingBottom="8dp"
+                android:paddingRight="10dp"
+                android:paddingTop="8dp" >
+
+                <TextView
+                    android:id="@+id/tv_pznum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
+                    android:text=""
+                    android:textColor="@color/black_1"
+                    android:textSize="15sp" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                style="@style/textview_order_query_detail_ds"
+                android:text="交易流水号" />
+
+            <TextView
+                android:id="@+id/tv_orderId"
+                style="@style/textview_order_query_detail_content"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                style="@style/textview_order_query_detail_ds"
+                android:text="交易时间：" />
+
+            <TextView
+                android:id="@+id/tv_time"
+                style="@style/textview_order_query_detail_content"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                style="@style/textview_order_query_detail_ds"
+                android:text="门店" />
+
+            <TextView
+                android:id="@+id/tv_shopname"
+                style="@style/textview_order_query_detail_content"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                style="@style/textview_order_query_detail_ds"
+                android:text="操作员" />
+
+            <TextView
+                android:id="@+id/tv_username"
+                style="@style/textview_order_query_detail_content"
+                android:text="" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0.2dp"
+            android:background="@color/blank_color" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                style="@style/textview_order_query_detail_ds"
+                android:text="备注信息" />
+
+            <TextView
+                android:id="@+id/tv_remark"
+                style="@style/textview_order_query_detail_content"
+                android:text="" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0.2dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/blank_color" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:gravity="center" >
+
+        <Button
+            android:id="@+id/btn_sure"
+            android:layout_width="200dp"
+            android:layout_height="45dp"
+            android:background="@drawable/btn_red454"
+            android:paddingLeft="20dp"
+            android:text="打印"
+            android:textColor="@color/white" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="55dp"
+            android:src="@drawable/print_icon_white" />
+    </RelativeLayout>
+
+</LinearLayout>

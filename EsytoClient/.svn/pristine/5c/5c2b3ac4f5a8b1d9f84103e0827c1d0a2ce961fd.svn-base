@@ -1,0 +1,55 @@
+package com.ec2.yspay.activity;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.common.AsyncImageLoader;
+import com.ec2.yspay.common.DataInitManager;
+import com.ec2.yspay.common.MyApplication;
+
+public class LoginSuc extends Activity {
+	private TextView tvName;
+	private ImageView mCompanyImageView;
+	private AsyncImageLoader asyImg = new AsyncImageLoader(this);
+
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.login_suc);
+		tvName = (TextView) findViewById(R.id.tv_companyname);
+		tvName.setText(MyApplication.mDataCache.companyName);
+		mCompanyImageView = (ImageView) findViewById(R.id.company_logo);
+		asyImg.LoadImage(MyApplication.mDataCache.companyLogoImageUrl,
+				MyApplication.mDataCache.companyLogoImage, mCompanyImageView,
+				getResources().getDrawable(R.drawable.company_default_logo));
+		mHandler.sendEmptyMessageDelayed(1, 600);
+		/**
+		 * 数据准备
+		 */
+		DataInitManager dataInitManager = new DataInitManager(this);
+		dataInitManager.initData();
+	}
+
+	private Handler mHandler = new Handler() {
+
+		/**
+		 * 重载方法
+		 * 
+		 * @param msg
+		 */
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			Intent i = new Intent();
+			i.setClass(LoginSuc.this, MainActivity.class);
+			startActivity(i);
+			finish();
+		}
+
+	};
+}

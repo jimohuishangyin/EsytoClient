@@ -1,0 +1,92 @@
+package com.ec2.yspay.adapter;
+
+import java.util.List;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.http.cash.ShopItem;
+import com.ec2.yspay.http.cash.StaffItem;
+
+public class PersonalListAdapter extends BaseAdapter {
+	List<StaffItem> items;
+	Context mContext;
+	List<ShopItem> mShopList;
+	public PersonalListAdapter(Context context,List<StaffItem> items,List<ShopItem> shoplist) {
+		this.items = items;
+		mContext = context;
+		mShopList = shoplist;
+	}
+	@Override
+	public int getCount() {
+		return items.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return items.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		ViewHolder viewHolder = null;
+	    if(convertView == null){
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.personal_list_item, null);          
+            viewHolder=new ViewHolder();
+            viewHolder.personal_name = (TextView)convertView.findViewById(R.id.personal_name);
+            viewHolder.personal_num = (TextView)convertView.findViewById(R.id.personal_num);
+            viewHolder.personal_shop = (TextView)convertView.findViewById(R.id.personal_shop);
+            viewHolder.personal_statu = (TextView)convertView.findViewById(R.id.personal_statu);
+            convertView.setTag(viewHolder);
+        }
+        else{
+            viewHolder = (ViewHolder)convertView.getTag();
+        } 
+	    StaffItem item = items.get(position);
+	    viewHolder.personal_num.setText(item.getAccount());
+	    for(int i = 0 ;i<mShopList.size();i++){
+	    	if(item.getShopCode().equals(mShopList.get(i).getShopCode())){
+	    		viewHolder.personal_shop.setText("所属门店："+mShopList.get(i).getShopName());
+	    	}
+	    }
+	    if(item.getDuty()==2){
+	    	viewHolder.personal_name.setText(item.getUserName()+" (主管)");
+	    }else{
+	    	viewHolder.personal_name.setText(item.getUserName());
+	    }
+	    if(item.getStatus().equals("1")){
+	    	viewHolder.personal_statu.setText("正常");
+	    	viewHolder.personal_statu.setBackgroundResource(R.color.personal_green_color);
+	    }else if(item.getStatus().equals("2")){
+	    	viewHolder.personal_statu.setText("锁定");
+	    	viewHolder.personal_statu.setBackgroundResource(R.color.personal_red_color);
+	    }else if(item.getStatus().equals("3")){
+	    	viewHolder.personal_statu.setText("停用");
+	    	viewHolder.personal_statu.setBackgroundResource(R.color.personal_red_color);
+	    }else if(item.getStatus().equals("4")){
+	    	viewHolder.personal_statu.setText("删除");
+	    	viewHolder.personal_statu.setBackgroundResource(R.color.personal_red_color);
+	    }
+	    
+		return convertView;
+	}
+	
+	class ViewHolder {
+        TextView personal_name,personal_num,personal_shop,personal_statu;
+        LinearLayout ll_parent;
+        ImageView iv_staff;
+	}
+
+}

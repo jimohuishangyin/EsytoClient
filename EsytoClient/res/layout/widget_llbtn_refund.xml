@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout 
+    android:id="@+id/ll_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/tkcx_bg948_144">
+    <ImageView 
+        android:id="@+id/iv_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/dsftk_icon_96_96"/>
+    <TextView
+        android:id="@+id/tv_content"
+        style="@style/textview_black"
+        android:layout_toRightOf="@id/iv_icon"
+        android:layout_marginLeft="15dp"
+        android:layout_centerVertical="true"
+        android:text="号码支付或拍卡"/>
+    <ImageView 
+        android:id="@+id/iv_arrow_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/arrow72_72_over"/>
+</RelativeLayout>

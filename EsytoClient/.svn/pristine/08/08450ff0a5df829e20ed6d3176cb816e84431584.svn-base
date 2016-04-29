@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MyTitle">
+        <attr name="titleName" format="reference|string" />
+        <attr name="srcTitleLeft" format="reference" />
+        <attr name="srcTitleRight" format="reference" />
+        <attr name="isShowLeft" format="boolean" />
+        <attr name="isShowRight" format="boolean" />
+    </declare-styleable> 
+    <declare-styleable name="LlBtn">
+        <attr name="btnIcon" format="reference|string" />
+        <attr name="btnIconPessed" format="reference|string" />
+        <attr name="btnContent" format="string" />
+        <attr name="llBackground" format="reference" />
+    </declare-styleable>  
+</resources>

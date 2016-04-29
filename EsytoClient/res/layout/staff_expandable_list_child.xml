@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:id="@+id/ll_parent">
+
+	<LinearLayout 
+	    android:id="@+id/ll_state_normal"
+	    android:layout_width="match_parent"
+	    android:layout_height="45dp"
+	    android:orientation="horizontal"
+	    android:paddingLeft="1dp"
+	    android:gravity="center_vertical"
+	    android:paddingRight="1dp">
+	    <ImageView
+	        android:id="@+id/iv_staff"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:src="@drawable/personnel_icon_48"/>
+		<TextView 
+		    android:id="@+id/tv_name"
+	        style="@style/textview_black2"
+	        android:layout_width="0dp"
+	        android:textSize="14dp"
+	        android:layout_weight="3"
+	        android:singleLine="true"
+	        android:ellipsize="end"
+	        android:layout_marginLeft="8dp"
+	        android:text="罗洪祥洪祥"/>
+		<TextView 
+	        android:id="@+id/tv_account"
+	        style="@style/textview_black2"
+	        android:layout_width="0dp"
+	        android:layout_weight="6"
+	        android:textSize="14dp"
+	        android:paddingLeft="12dp"
+	        android:text="12324234245"/>
+		
+	    <TextView 
+	        android:id="@+id/tv_state"
+	        style="@style/textview_black2"
+	        android:layout_width="0dp"
+	        android:layout_weight="3"
+	        android:textSize="14dp"
+	        android:gravity="center_horizontal"
+	        android:paddingRight="12dp"
+	        android:paddingLeft="5dp"
+	        android:drawableRight="@drawable/dropdown_normal48_48"
+	        android:background="@drawable/drop_down"
+	        android:text="锁定"/>
+	</LinearLayout>
+    
+</LinearLayout>

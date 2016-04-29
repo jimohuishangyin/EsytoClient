@@ -1,0 +1,124 @@
+package com.ec2.yspay.common;
+
+import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.util.Log;
+
+import com.chinaums.mpos.service.IUmsMposService;
+
+public class ServiceManager {
+	private static final String TAG = "ServiceManager";
+	public IUmsMposService mUmsMposService;
+	private static ServiceManager instance;
+	private String orderID;
+	private String authNo;
+	private String merOrderId;
+	private String preAuthFinOrderId;
+	private String finAuthNo;
+	private String finMerOrderId;
+	
+	public String getFinAuthNo() {
+		return finAuthNo;
+	}
+
+
+	public void setFinAuthNo(String finAuthNo) {
+		this.finAuthNo = finAuthNo;
+	}
+
+
+	public String getFinMerOrderId() {
+		return finMerOrderId;
+	}
+
+
+	public void setFinMerOrderId(String finMerOrderId) {
+		this.finMerOrderId = finMerOrderId;
+	}
+
+
+	public String getMerOrderId() {
+		return merOrderId;
+	}
+
+
+	public void setMerOrderId(String merOrderId) {
+		this.merOrderId = merOrderId;
+	}
+
+
+	public String getPreAuthFinOrderId() {
+		return preAuthFinOrderId;
+	}
+
+
+	public void setPreAuthFinOrderId(String preAuthFinOrderId) {
+		this.preAuthFinOrderId = preAuthFinOrderId;
+	}
+
+	
+	public String getAuthNo() {
+		return authNo;
+	}
+
+
+	public void setAuthNo(String authNo) {
+		this.authNo = authNo;
+	}
+
+	private ServiceConnection mConnection = new ServiceConnection() {
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+		    Log.w(TAG, "pos机绑定成功！");
+			mUmsMposService = IUmsMposService.Stub.asInterface(service);
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			mUmsMposService = null;
+			Log.e(TAG, "pos机未绑定！");
+		}
+
+	};
+		
+	synchronized public static ServiceManager getInstance() {
+		if (instance == null) {
+			instance = new ServiceManager();
+		}
+		return instance;
+	}
+ 
+	
+	public void setOrderID(String orderId){
+		orderID=orderId;
+	}
+	
+	public String getOrderId(){
+		return instance.orderID;
+	}
+
+	public void bindMpospService(Context context) {
+	    Log.w(TAG, "bindMpospService");
+		// 绑定远程服务
+		Intent intent = new Intent();
+		String servicePkgname = "com.chinaums.mposplugin";//plugin
+		//手机版：packageName='com.chinaums.mposplugin' 
+		//Pad 版：packageName='com.chinaums.mpospluginpad'
+		intent.setClassName(servicePkgname,
+				"com.chinaums.mpos.service.MposService");
+		// 与服务端进行绑定，绑定成功会回调onServiceConnected里面
+		context.bindService(intent, mConnection, Service.BIND_AUTO_CREATE);
+	}
+
+	public void unbindMposService(Context context) {
+	    try{
+	        context.unbindService(mConnection);
+	    }catch(Exception e){
+	        e.printStackTrace();
+	    }
+	}
+}

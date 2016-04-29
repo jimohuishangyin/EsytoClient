@@ -1,0 +1,122 @@
+package com.ec2.yspay;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
+
+import com.ec2.yspay.activity.BaseActivity;
+import com.ec2.yspay.adapter.CityListAdapter;
+import com.ec2.yspay.common.City;
+import com.ec2.yspay.common.CityManager;
+import com.ec2.yspay.common.Province;
+
+
+public class CityListActivity extends BaseActivity
+{
+	private ListView cityListView;
+    private ArrayList<Province> mProvinceList;
+    private List<City> mAllCityList;
+    private List<City> SpecifiCitylist;
+    private CityManager mCityManager;
+    private String ProvinceName;
+    private String CityName;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_city_list);
+        cityListView = (ListView)findViewById(R.id.lv_citylist);
+        mCityManager = new CityManager();
+        mCityManager.readDataBase(mContext);
+        cityListView = (ListView)findViewById(R.id.lv_citylist);
+        mProvinceList = (ArrayList<Province>) mCityManager.getProvivceList();
+        mAllCityList = mCityManager.getCityNames();
+        CityListAdapter adapter = new CityListAdapter(mContext, mProvinceList);
+        cityListView.setAdapter(adapter);
+        cityListView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Province mProvinc = mProvinceList.get(position);
+				ProvinceName = mProvinc.getName();
+				int ProvinceID = mProvinc.getProvinceID();
+				showCityPicker(mAllCityList,ProvinceID);
+			}
+		});
+    }
+    /**
+     * 重载方法
+     */
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        mCityManager.close();
+    }
+    private ArrayList<City> getSpecificCityList(List<City> list,int provinceid){
+    	ArrayList<City> citylist = new ArrayList<City>();
+    	for(int i=0;i<list.size();i++){
+    		if(list.get(i).getProvinceID()==provinceid){
+    			citylist.add(list.get(i));
+    		}
+    	}
+    	return citylist;
+    	
+    }
+    
+    public void showCityPicker(List<City> list,int provinceid) {
+    	SpecifiCitylist =getSpecificCityList(list,provinceid);
+    	final int size =  SpecifiCitylist.size();
+    	String[] arr =new String [size];
+    	for(int i=0;i<size;i++){
+    		arr[i] = new String(SpecifiCitylist.get(i).getName());
+    	}
+    	
+    	AlertDialog ad =new AlertDialog.Builder(mContext).setTitle(ProvinceName)  
+                .setSingleChoiceItems(arr,payTypeRadioOnClick.getIndex(),payTypeRadioOnClick).create();  
+                ad.show();
+        
+    }
+    private CityRadioOnClick payTypeRadioOnClick = new CityRadioOnClick(0); 
+    class CityRadioOnClick implements DialogInterface.OnClickListener{  
+        private int index;  
+        
+        public CityRadioOnClick(int index){  
+         this.index = index;  
+        }  
+        public void setIndex(int index){  
+         this.index=index;  
+        }  
+        public int getIndex(){  
+         return index;  
+        }
+        /**
+         * 重载方法
+         * @param dialog
+         * @param which
+         */
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            // TODO Auto-generated method stub
+            index = which;
+            dialog.dismiss();
+            CityName = SpecifiCitylist.get(index).getName();
+            Intent intent=new Intent();
+            intent.putExtra("province", ProvinceName);
+            intent.putExtra("city", CityName);
+            setResult(RESULT_OK, intent);
+            finish();
+        }  
+    }
+}

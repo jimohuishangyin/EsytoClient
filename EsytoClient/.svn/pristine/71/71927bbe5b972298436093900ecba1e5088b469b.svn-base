@@ -1,0 +1,262 @@
+package com.ec2.yspay.widget.popwindow;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.activity.ClipImageActivity;
+import com.ec2.yspay.common.Constants;
+import com.ec2.yspay.common.Log;
+import com.ec2.yspay.common.ToastUtils;
+/**
+ * 城市列表级联弹窗效果
+ * @ClassName: CityPopwindow 
+ * @Description: TODO(这里用一句话描述这个类的作用) 
+ * @author 罗洪祥 luohx@esyto.com 
+ * @date 2016年4月12日 下午3:16:10 
+ *
+ */
+public class PicPopwindow extends Popwindow{
+	public static final int START_ALBUM_REQUESTCODE = 1;
+	public static final int CAMERA_WITH_DATA = 2;
+	public static final int CROP_RESULT_CODE = 3;
+	public static final int REQUEST_CODE_GO_SYS_CROP = 1001;
+	public static final String TMP_PATH = "clip_temp.jpg";
+	public static final String IMAGE_UNSPECIFIED = "image/*";
+	public static final String COMM_PARAMS_CAMERE_SUFFIX = ".jpg";
+	public PicPopwindow(Activity mContext){
+		super(mContext);
+	}
+	/**
+	 * @Description: 图片修改上传弹窗，可以选择拍照或从相册中选择
+	 * @param @param parent  
+	 * @return void
+	 * @author 罗洪祥
+	 * @date 2016年4月13日 上午11:39:49
+	 */
+	public void showPicPopwindow(View parent) {
+		View outerView = LayoutInflater.from(mContext).inflate(
+				R.layout.layout_pop_update_touxiang, null);
+		Button btnLocal = (Button) outerView.findViewById(R.id.btn_pic_local);
+		Button btnTakePhoto = (Button) outerView
+				.findViewById(R.id.btn_pic_takephoto);
+		btnLocal.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				startAlbum(START_ALBUM_REQUESTCODE);
+				popupWindow.dismiss();
+			}
+		});
+		btnTakePhoto.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				startCapture(CAMERA_WITH_DATA);
+				popupWindow.dismiss();
+			}
+		});
+		showPopupwindow(outerView,parent);
+	}
+	
+	/**
+	 * @Description: 从相册中选择一张图片进行裁切
+	 * @param   
+	 * @return void
+	 * @author 罗洪祥
+	 * @date 2016年4月13日 下午2:51:43
+	 */
+	public void startAlbum(int requestCode) {
+//		Intent intent = new Intent();
+//		intent.setAction(Intent.ACTION_PICK);
+//		intent.setType("image/*");
+//		mContext.startActivityForResult(intent, requestCode);
+		
+		Intent intent = new Intent(Intent.ACTION_PICK);
+//		intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//				IMAGE_UNSPECIFIED);
+		intent.setType("image/*");
+		intent.putExtra("crop", "true");
+		intent.putExtra("aspectX", 1);
+		intent.putExtra("aspectY", 1);
+		intent.putExtra("outputX", 300);
+		intent.putExtra("outputY", 300);
+		intent.putExtra("scale", true);
+		intent.putExtra("return-data", true);
+		intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+		intent.putExtra("noFaceDetection", true); 
+		mContext.startActivityForResult(intent, requestCode);
+//		mContext.startActivityForResult(intent, START_ALBUM_REQUESTCODE);
+	}
+	/**
+	 * @Description: 启动拍照模式 
+	 * @param  
+	 * @return void
+	 * @author 罗洪祥
+	 * @date 2016年4月13日 下午3:15:55
+	 */
+	public void startCapture(int requestCode) {
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, getTempUri());
+		mContext.startActivityForResult(intent, requestCode);
+//		mContext.startActivityForResult(intent, CAMERA_WITH_DATA);
+	}
+	private Uri getTempUri(){
+		return Uri.fromFile(new File(
+				Constants.PATH_FILE, TMP_PATH));
+	}
+	/**
+	 * 拍完照之后退图片进行裁切
+	 * @Description: TODO 
+	 * @param @param requestCode  
+	 * @return void
+	 * @author 罗洪祥
+	 * @date 2016年4月13日 下午3:16:28
+	 */
+	public void cropImageUri( int requestCode){
+		 Intent intent = new Intent("com.android.camera.action.CROP");
+		 intent.setDataAndType(getTempUri(), "image/*");
+		 intent.putExtra("crop", "true");
+		 intent.putExtra("aspectX", 1);
+		 intent.putExtra("aspectY", 1);
+		 intent.putExtra("outputX", 300);
+		 intent.putExtra("outputY", 300);
+		 intent.putExtra("scale", true);
+		 intent.putExtra(MediaStore.EXTRA_OUTPUT, getTempUri());
+		 intent.putExtra("return-data", false);
+		 intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+		 intent.putExtra("noFaceDetection", true); // no face detection
+		 mContext.startActivityForResult(intent, requestCode);
+		}
+		/**
+		 * 获取图片地址，进行上传
+		 * @Description: TODO 
+		 * @param @param data  
+		 * @return String
+		 * @author 罗洪祥
+		 * @date 2016年4月13日 下午3:18:10
+		 */
+		public String getPicPathFromData(Intent data) {
+			String picPath = "";
+			if (data != null){
+//				Uri selectedimg = data.getData();
+				Bitmap bitmap=null;
+				try {
+//					selectedimg.getPath();
+					bitmap = data.getParcelableExtra("data");
+//					Log.e("lhx", getFilePath(data.getData()));
+//					bitmap = BitmapFactory.decodeFile(getFilePath(data.getData()));
+//					bitmap = BitmapFactory.decodeFile(selectedimg.getPath());
+//					bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), selectedimg);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}//data.getParcelableExtra("data");
+				if(bitmap==null){
+					ToastUtils.show(mContext, "头像设置未获取到图片！");
+//					Log.e("getPicPathFromData","头像设置未获取到图片！");
+					return null;
+				}
+				String path = Constants.PATH_FILE + "/"
+						+ TMP_PATH;
+				saveBitmap(bitmap, path);
+//				uploadTouxiang(path);
+				picPath = path;
+			}else{
+				Log.e("头像设置", "返回数据为空");
+			}
+			return picPath;
+
+		}
+		public String getPathData() {
+			String picPath = "";
+			Bitmap bitmap = decodeUriAsBitmap(getTempUri());
+			String path = Constants.PATH_FILE + "/"
+					+ TMP_PATH;
+			saveBitmap(bitmap, path);
+			picPath = path;
+			return picPath;
+
+		}
+		private Bitmap decodeUriAsBitmap(Uri uri){
+			 Bitmap bitmap = null;
+			 try {
+			  bitmap = BitmapFactory.decodeStream(mContext.getContentResolver().openInputStream(uri));
+			 } catch (FileNotFoundException e) {
+			  e.printStackTrace();
+			  return null;
+			 }
+			 return bitmap;
+			}
+		private  void saveBitmap(Bitmap bitmap, String path) {
+			File f = new File(path);
+			if (f.exists()) {
+				f.delete();
+			}
+
+			FileOutputStream fOut = null;
+			try {
+				f.createNewFile();
+				fOut = new FileOutputStream(f);
+				bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+				fOut.flush();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			} finally {
+				try {
+					if (fOut != null)
+						fOut.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		/**
+		 * 通过uri获取文件路径
+		 * 
+		 * @param mUri
+		 * @return
+		 */
+		public String getFilePath(Uri mUri) {
+			try {
+				return getFilePathByUri(mUri);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				return null;
+			}
+		}
+
+		private String getFilePathByUri(Uri mUri) throws Exception {
+			if (!TextUtils.isEmpty(mUri.getAuthority())) {
+				Cursor cursor = mContext.getContentResolver().query(mUri,
+						new String[] { MediaStore.Images.Media.DATA }, null, null,
+						null);
+				if (null == cursor) {
+					return null;
+				}
+				cursor.moveToFirst();
+				String path = cursor.getString(cursor
+						.getColumnIndex(MediaStore.Images.Media.DATA));
+				cursor.close();
+				return path;
+			} else {
+				return mUri.getPath();
+			}
+		}
+
+}

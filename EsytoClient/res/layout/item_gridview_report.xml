@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android_custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="10dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:gravity="center_horizontal"
+    android:paddingRight="4dp"
+    android:id="@+id/ll_parent">
+    <com.ec2.yspay.widget.RoundProgressBar 
+        android:id="@+id/roundProgressBar"
+        android:layout_width="@dimen/report_circle_width"
+        android:layout_height="@dimen/report_circle_width"
+        android:layout_centerInParent="true"
+        android_custom:roundColor="#eeeeed"
+        android_custom:roundRadius="42dp"
+        android_custom:roundWidth="3dp"
+        android_custom:textSize="14dp"
+        android_custom:textColor="#ea2e49"
+        android_custom:roundProgressColor="#e60012"
+        android_custom:textIsDisplayable="true"/>
+    <TextView 
+        android:id="@+id/tv_paynum"
+        style="@style/textview_black3"
+        android:layout_marginTop="5dp"
+        android:text="现金"/>
+</LinearLayout>

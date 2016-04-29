@@ -1,0 +1,76 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:client="http://schemas.android.com/apk/res/com.ec2.yspay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+	<com.ec2.yspay.widget.MyTitle 
+        android:id="@+id/rl_top"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        client:isShowLeft="true"
+        client:titleName="实时报表"/>
+	<ScrollView 
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+	    
+	
+	<LinearLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:orientation="vertical"
+	    android:padding="@dimen/padding_parent"
+	    android:background="@color/white">
+	    <TextView 
+	        android:id="@+id/tv_all_user"
+	        style="@style/textview_black"
+	        android:layout_marginTop="20dp"
+	        android:text="收  银  员："/>
+	    <TextView 
+	        android:id="@+id/tv_all_begintime"
+	        style="@style/textview_black"
+	        android:layout_marginTop="@dimen/print_margin_textveiw"
+	        android:text="日        期："/>
+	    <TextView 
+	        android:id="@+id/tv_all_endtime"
+	        style="@style/textview_black"
+	        android:layout_marginTop="@dimen/print_margin_textveiw"
+	        android:text="查询时间："/>
+	    <View 
+	        android:layout_width="fill_parent"
+	        android:layout_height="0.5dp"
+	        android:layout_marginTop="20dp"
+	        android:background="@color/line_gray"/>
+	    <TextView 
+	        android:id="@+id/tv_totalMoney"
+	        style="@style/textview_pink"
+	        android:layout_marginTop="30dp"
+	        android:text="总金额：0.00元（0笔）"/>
+	    <TextView 
+	        style="@style/textview_black1"
+	        android:layout_width="fill_parent"
+	        android:gravity="center"
+	        android:textSize="12dp"
+	        android:layout_marginTop="30dp"
+	        android:layout_marginBottom="1dp"
+	        android:text="各收款方式成交笔数"/>
+	    <com.ec2.yspay.widget.MyHorizontalBarChart
+	        android:id="@+id/chart_bar1"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"/>
+	    <TextView 
+	        style="@style/textview_black1"
+	        android:layout_width="fill_parent"
+	        android:gravity="center"
+	        android:textSize="12dp"
+	        android:layout_marginTop="20dp"
+	        android:layout_marginBottom="10dp"
+	        android:text="各收款方式金额及百分比"/>
+	    <com.ec2.yspay.widget.MyPieChart
+	        android:id="@+id/chart_pie1"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content" />
+	    
+	</LinearLayout>
+	</ScrollView>
+</LinearLayout>

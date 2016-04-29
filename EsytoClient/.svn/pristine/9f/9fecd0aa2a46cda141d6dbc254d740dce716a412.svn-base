@@ -1,0 +1,161 @@
+package com.ec2.yspay.activity;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import android.R.integer;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.ec2.yspay.DeviceConnectActivity;
+import com.ec2.yspay.R;
+import com.ec2.yspay.common.PrintDeviceTools;
+import com.ec2.yspay.common.ToastUtils;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.entity.PayTypeEntity;
+import com.ec2.yspay.entity.PrintOne;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.cash.PaytypeCountItem;
+import com.ec2.yspay.http.response.PrintDayAllResponse;
+import com.ec2.yspay.http.task.PrintDayAllTask;
+import com.ec2.yspay.print.PrintManager;
+import com.ec2.yspay.print.PrintTotalEntity;
+import com.ec2.yspay.widget.ButtonBlueCenter;
+
+public class PrintAllTogetherActivity extends BaseActivity
+{
+    private ButtonBlueCenter btnPrint;
+    private String userName;
+    private String totalAmount;
+    private String totalItems;
+    private List<PaytypeCountItem> mList = new ArrayList<PaytypeCountItem>();
+    private String cashMoney="0.00",cashCount="0";
+    private String cardMoney="0.00",cardCount="0";
+    private String bestMoney="0.00",bestCount="0";
+    private String aliMoney="0.00",aliCount="0";
+    private String wxMoney="0.00",wxCount="0";
+    private String beginTime,endTime;
+    private TextView tvUser,tvBeginTime,tvEndTime,tvCash,tvCard,tvBest,tvWx,tvAli;
+    private TextView tvTotal;
+    Date tDate = new Date();
+    private PrintManager printManager;
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_print_all_together);
+        printManager = PrintManager.getInstance(mContext);
+        btnPrint = (ButtonBlueCenter)findViewById(R.id.btn_sure);
+        getOrderCollect();
+        btnPrint.setBtnOnclickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                print();
+            }
+        });
+    }
+    private void initView(){
+        tvUser = (TextView)findViewById(R.id.tv_all_user);
+        tvBeginTime = (TextView)findViewById(R.id.tv_all_begintime);
+        tvEndTime = (TextView)findViewById(R.id.tv_all_endtime);
+        tvCash = (TextView)findViewById(R.id.tv_all_cash);
+        tvCard = (TextView)findViewById(R.id.tv_all_card);
+        tvBest = (TextView)findViewById(R.id.tv_all_best);
+        tvWx = (TextView)findViewById(R.id.tv_all_wx);
+        tvTotal = (TextView)findViewById(R.id.tv_totalMoney);
+        tvAli = (TextView)findViewById(R.id.tv_all_ali);
+        
+        tvUser.setText("收银员："+userName);
+        tvBeginTime.setText("开始时间："+beginTime);
+        tvEndTime.setText("结束时间："+endTime);
+        tvBest.setText("翼支付："+bestMoney+"元（"+bestCount+"笔）");
+        tvWx.setText("微信支付："+wxMoney+"元（"+wxCount+"笔）");
+        tvAli.setText("支付宝："+aliMoney+"元（"+aliCount+"笔）");
+        tvCash.setText("现金："+cashMoney+"元（"+cashCount+"笔）");
+        tvCard.setText("银行卡："+cardMoney+"元（"+cardCount+"笔）");
+        tvTotal.setText("总金额："+totalAmount+"元（"+totalItems+"笔）");
+    }
+    private void getOrderCollect(){
+        PrintDayAllTask task = new PrintDayAllTask(mContext);
+        task.setProgressVisiable(true);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                PrintDayAllResponse response = (PrintDayAllResponse)obj;
+                totalAmount = response.getTotalAmount();
+                totalItems = response.getTotalItems();
+                mList = response.getCollectInfos();
+                userName = response.getUserName();
+                beginTime = response.getBeginTime();
+                endTime = response.getEndTime();
+                anaMsg();
+                initView();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                PrintDayAllResponse response = (PrintDayAllResponse)obj;
+                showToast(response.getResultDesc());
+                finish();
+            }
+        });
+        task.execute();
+    }
+    private void anaMsg(){
+        for(PaytypeCountItem item:mList){
+            int payId = Integer.valueOf(item.getChannelType());
+            switch (payId)
+            {
+                case PayTypeEntity.PAY_CASH:
+                    cashMoney = item.getTotalAmount();
+                    cashCount = item.getTotalItems();
+                    break;
+                case PayTypeEntity.PAY_UNION:
+                    cardMoney = item.getTotalAmount();
+                    cardCount = item.getTotalItems();
+                    break;
+                case PayTypeEntity.PAY_ALI:
+                    aliMoney = item.getTotalAmount();
+                    aliCount = item.getTotalItems();
+                    break;
+                case PayTypeEntity.PAY_BEST:
+                    bestMoney = item.getTotalAmount();
+                    bestCount = item.getTotalItems();
+                    break;
+                case PayTypeEntity.PAY_WX:
+                    wxMoney = item.getTotalAmount();
+                    wxCount = item.getTotalItems();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    public void print(){
+    	PrintTotalEntity entity = new PrintTotalEntity(userName, tDate, cashMoney, cashCount,
+                cardMoney, cardCount, bestMoney, bestCount, aliMoney, aliCount, wxMoney, wxCount, totalAmount, totalItems);
+        printManager.setmPrintTotalEntity(entity);    
+    	printManager.printTotal();
+    }
+    private String getTime(){
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+        return df.format(new Date());// new Date()为获取当前系统时间
+    }
+    private String getDate(){
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//设置日期格式
+        return df.format(new Date());// new Date()为获取当前系统时间
+    }
+}

@@ -1,0 +1,125 @@
+package com.ec2.yspay;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import com.ec2.yspay.activity.BaseActivity;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.response.BooleanResponse;
+import com.ec2.yspay.http.task.AddStoreTask;
+
+public class StoreAddActivity extends BaseActivity
+{
+    private String province,city;
+    private TextView tvShopCity;
+    private Button btnAddStaff;
+    private EditText etShopName,etAddress,etPhone;
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_store_add);
+        etShopName = (EditText)findViewById(R.id.et_shop_name);
+        etAddress = (EditText)findViewById(R.id.et_shop_address);
+        etPhone = (EditText)findViewById(R.id.et_shop_phone);
+        tvShopCity = (TextView)findViewById(R.id.tv_shop_city);
+        tvShopCity.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                // TODO Auto-generated method stub
+                Intent cityIntent = new Intent(mContext, CityListActivity.class);
+                startActivityForResult(cityIntent, 101);
+            }
+        });
+        btnAddStaff = (Button)findViewById(R.id.btn_addstaff);
+        btnAddStaff.setOnClickListener(new OnClickListener()
+        {
+            
+            @Override
+            public void onClick(View v)
+            {
+                // TODO Auto-generated method stub
+                if(isValid()){
+                    addStore();
+                }
+            }
+        });
+    }
+    private boolean isValid(){
+        if(Toolkits.isStrEmpty(etShopName.getText().toString())){
+            showToast("请输入门店名称！");
+            return false;
+        }
+        if(Toolkits.isStrEmpty(etAddress.getText().toString())){
+            showToast("请输入地址！");
+            return false;
+        }
+        if(Toolkits.isStrEmpty(etPhone.getText().toString())){
+            showToast("请输入联系电话！");
+            return false;
+        }
+        if(Toolkits.isStrEmpty(province)){
+            showToast("请选择区域！");
+            return false;
+        }
+        return true;
+    }
+    /**
+     * 重载方法
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        // TODO Auto-generated method stub
+        if (resultCode != RESULT_OK) {
+            return;
+        }
+        switch (requestCode) {
+            case 101://城市列表
+                province = data.getStringExtra("province");
+                city = data.getStringExtra("city");
+                tvShopCity.setText(province+"/"+city);
+                break;
+            }
+    }
+    private void addStore(){
+        AddStoreTask task = new AddStoreTask(mContext);
+        task.setAddress(etAddress.getText().toString());
+        task.setCity(city);
+        task.setProvince(province);
+        task.setPhone(etPhone.getText().toString());
+        task.setShopName(etShopName.getText().toString());
+        task.setProgressVisiable(true);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                showToast("门店添加成功！");
+                finish();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                BooleanResponse response = (BooleanResponse)obj;
+                showToastLong(response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+}

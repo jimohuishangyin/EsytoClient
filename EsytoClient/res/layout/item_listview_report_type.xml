@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingLeft="10dp"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
+    android:gravity="center_vertical"
+    android:paddingRight="4dp">
+	
+	<TextView 
+        android:id="@+id/tv_name"
+        style="@style/textview_black"
+        android:layout_width="match_parent"
+        android:textColor="@color/white"
+        android:textSize="16dp"
+        android:text="日报表"/>
+</LinearLayout>

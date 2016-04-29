@@ -1,0 +1,224 @@
+package com.ec2.yspay.activity;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.RelativeLayout;
+
+import com.chinaums.mpos.service.IUmsMposResultListener;
+import com.ec2.yspay.R;
+import com.ec2.yspay.common.Common;
+import com.ec2.yspay.common.Constants;
+import com.ec2.yspay.common.FileTools;
+import com.ec2.yspay.common.ServiceManager;
+import com.ec2.yspay.common.ToastUtils;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.entity.OrderInfo;
+import com.ec2.yspay.entity.PayTypeEntity;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.response.CashOrCardResponse;
+import com.ec2.yspay.http.response.GetPosOrderIdResponse;
+import com.ec2.yspay.http.task.CashOrCardTask;
+import com.ec2.yspay.http.task.GetPosOrderIdTask;
+import com.ec2.yspay.pay.card.MPosPay;
+
+public class CashCollectActivity extends BaseActivity implements OnClickListener {  
+	private RelativeLayout BtnCard;
+	private RelativeLayout BtnBest;
+	private RelativeLayout BtnAli;
+	private RelativeLayout BtnWChat;
+	private String mMoney,transDate;
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.cash_collection_activity);
+        BtnCard = (RelativeLayout)findViewById(R.id.btn_collection_card);
+        BtnBest = (RelativeLayout)findViewById(R.id.btn_collection_best);
+        BtnAli = (RelativeLayout)findViewById(R.id.btn_collection_ali);
+        BtnWChat = (RelativeLayout)findViewById(R.id.btn_collection_wchat);
+        
+        BtnCard.setOnClickListener(this);
+        BtnBest.setOnClickListener(this);
+        BtnAli.setOnClickListener(this);
+        BtnWChat.setOnClickListener(this);
+        mMoney = getIntent().getStringExtra("money");
+        transDate = getIntent().getStringExtra("transDate");
+    }
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+        switch (v.getId())
+        {
+            case R.id.btn_collection_card:
+                getPosOrderId();
+            	
+                break;
+            case R.id.btn_collection_best:
+                Intent bestIntent = new Intent(mContext, CollectionBestActivity.class);
+                bestIntent.putExtra("money", mMoney);
+                bestIntent.putExtra("transDate", transDate);
+                mContext.startActivity(bestIntent);
+                finish();
+                break;
+            case R.id.btn_collection_ali:
+                Intent aliIntent = new Intent(mContext, CollectAliActivity.class);
+                aliIntent.putExtra("money", mMoney);
+                aliIntent.putExtra("transDate", transDate);
+                mContext.startActivity(aliIntent);
+                finish();
+                break;
+            case R.id.btn_collection_wchat:
+                Intent wChatIntent = new Intent(mContext, CollectWChatActivity.class);
+                wChatIntent.putExtra("money", mMoney);
+                wChatIntent.putExtra("transDate", transDate);
+                mContext.startActivity(wChatIntent);
+                finish();
+                break;
+            default:
+                break;
+                
+        }
+	}
+	/**
+     * 
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @param item 
+     * @date     2015年11月12日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    protected void getPosOrderId()
+    {
+        // TODO Auto-generated method stub
+        OrderInfo orderInfo = new OrderInfo(mMoney);
+        CashOrCardTask task = new CashOrCardTask(mContext, PayTypeEntity.PAY_UNION, orderInfo,"");
+        task.setCollect(true);
+        task.setTrans_date(transDate);
+        task.setProgressVisiable(true);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                CashOrCardResponse response = (CashOrCardResponse)obj;
+                if(Toolkits.isPkgInstalled(mContext, Constants.QUANMIN_PCK)){
+                    new MPosPay(mContext).bookOrderAndPay(mMoney,response.getOrderId(),
+                        new BookOrderAndPayResultListener(response.getOrderId()));
+                }else {
+                    FileTools fileTools = new FileTools(mContext);
+                    fileTools.InstallAPK(Constants.QUANMIN_NAME);
+                }
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                CashOrCardResponse response = (CashOrCardResponse)obj;
+                ToastUtils.show(mContext, response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+	/**
+     * 
+     * 银行卡刷卡返回信息
+     * 
+     * @param money
+     *            支付金额 卓10.29
+     */
+    class BookOrderAndPayResultListener extends IUmsMposResultListener.Stub {
+        String mOrderId;
+        public BookOrderAndPayResultListener(String orderId){
+            this.mOrderId = orderId;
+        }
+        @Override
+        public void umsServiceResult(final Bundle result)
+                throws RemoteException {
+            Message msg = new Message();
+            msg.setData(result);
+            mPosResultHandler.sendMessage(msg);
+            
+        }
+    }
+    private Handler mPosResultHandler = new Handler(){
+        public void handleMessage(android.os.Message msg) {
+            Bundle result = msg.getData();
+            String receive = Common.printBundle(result);
+            String resultStatus = result.getString("resultStatus");
+            String resultInfo = result.getString("resultInfo");
+            String payStatus = result.getString("payStatus");
+            String signatureStatus = result
+                    .getString("signatureStatus");
+            Log.i("posPay", "resultStatus:"+resultStatus + ";resultInfo:" + resultInfo
+                + ";payStatus:" + payStatus);
+            Log.i("TAG", "返回信息--->" + receive);
+            ToastUtils.showLong(mContext, resultInfo);
+            if ("success".equals(payStatus)) {
+                String orderId = result.getString("orderId");
+                ServiceManager.getInstance().setOrderID(orderId);
+                String printStatus = result.getString("printStatus");
+
+                if ("success".equals(payStatus)
+                        && !"success".equals(signatureStatus)) {
+//                  payMessageDialog(
+//                          mContext.getString(R.string.pay_success_voucher_fail),
+//                          receive);
+                } else if ("success".equals(payStatus)) {
+//                  payMessageDialog(
+//                          mContext.getString(R.string.pay_success),
+//                          receive);
+                }
+                ToastUtils.show(mContext, "现金归集成功！");
+                finish();
+            } else if ("havetopay".equals(resultStatus)) {
+//              payMessageDialog(
+//                      mContext.getResources().getString(
+//                              R.string.pay_success), receive);
+                ToastUtils.showLong(mContext, resultInfo);
+            } else {
+//              payMessageDialog(mContext.getString(R.string.pay_fail),
+//                      receive);
+                ToastUtils.showLong(mContext, resultInfo);
+            }
+        }
+    };
+    private void payByCard(String orderId){
+        OrderInfo orderInfo = new OrderInfo(mMoney);
+        CashOrCardTask task = new CashOrCardTask(mContext, PayTypeEntity.PAY_UNION, orderInfo,"");
+        task.setCollect(true);
+        task.setTrans_date(transDate);
+        task.setProgressVisiable(true);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                CashOrCardResponse response = (CashOrCardResponse)obj;
+                ToastUtils.show(mContext, "现金归集成功！");
+                finish();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                CashOrCardResponse response = (CashOrCardResponse)obj;
+                ToastUtils.showLong(mContext,"下单失败："+response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+
+}

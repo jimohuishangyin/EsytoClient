@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/month_bg_color"
+    android:orientation="vertical" >
+    
+    
+    <EditText
+            android:id="@+id/feedback_et"
+            android:layout_width="match_parent"
+            android:layout_height="212dp"
+            android:layout_gravity="center"
+            android:background="@null"
+            android:hint="您的反馈将帮助我们更快成长"
+            android:inputType="textMultiLine"
+  			 android:gravity="left|top"
+  			 android:lineSpacingMultiplier="1.5"
+  			 android:padding="10dp"
+  			 android:layout_margin="5dp"
+            android:textSize="16sp" />
+    
+    <Button
+        android:id="@+id/submit"
+        style="@style/btn_red636_style"
+        android:layout_marginTop="21dp"
+        android:text="提交" />
+
+</LinearLayout>

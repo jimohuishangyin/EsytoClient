@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white"
+    >
+	<RelativeLayout 
+	    android:layout_width="fill_parent"
+	    android:background="@color/red_type1"
+	    android:layout_height="50dp">
+	    <TextView 
+	        android:id="@+id/tv_sure"
+	        style="@style/textview_white_small_style"
+	        android:text="确定" 
+	        android:layout_centerVertical="true"
+	        android:paddingRight="15dp"
+	        android:layout_alignParentRight="true"/>
+	    <TextView 
+	        android:id="@+id/tv_cancel"
+	        style="@style/textview_white_small_style"
+	        android:text="取消"
+	        android:layout_centerVertical="true"
+	        android:paddingLeft="15dp"
+	        android:layout_alignParentLeft="true"/>
+	</RelativeLayout>
+	<ImageView android:layout_width="fill_parent"
+	    android:layout_height="0.5dp"
+	    android:src="@color/line_gray"/>
+    <EditText 
+        android:id="@+id/et_update_name"
+        style="@style/editText_gray_style"
+        android:layout_margin="18dp"
+        android:maxLength="8"
+        android:layout_gravity="center_horizontal"/>
+
+
+</LinearLayout>

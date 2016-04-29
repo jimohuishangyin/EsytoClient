@@ -1,0 +1,88 @@
+package com.ec2.yspay.activity;
+
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.common.MyApplication;
+import com.ec2.yspay.entity.PayTypeEntity;
+import com.ec2.yspay.entity.PrintOrderEntity;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.response.PrintByOrderidResponse;
+import com.ec2.yspay.http.task.PrintByOrderidTask;
+import com.ec2.yspay.print.PrintManager;
+
+public class PrintPreviewActivity extends BaseActivity {
+	private String codeMsg = null;
+	private PrintOrderEntity orderItem;
+	private TextView tvOrderId, tv_pznum, tv_money, tv_remark, tv_time,
+			tv_shopname, tv_username;
+	Button btnSure;
+	private PrintManager printManager;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_print_preview);
+		printManager = PrintManager.getInstance(mContext);
+		orderItem = (PrintOrderEntity) getIntent().getSerializableExtra(
+				"orderItem");
+		tvOrderId = (TextView) findViewById(R.id.tv_orderId);
+		tv_pznum = (TextView) findViewById(R.id.tv_pznum);
+		tv_money = (TextView) findViewById(R.id.tv_money);
+		tv_remark = (TextView) findViewById(R.id.tv_remark);
+		tv_time = (TextView) findViewById(R.id.tv_time);
+		tv_shopname = (TextView) findViewById(R.id.tv_shopname);
+		tv_username = (TextView) findViewById(R.id.tv_username);
+		btnSure = (Button) findViewById(R.id.btn_sure);
+		tvOrderId.setText(orderItem.getOrderId());
+		tv_pznum.setText(PayTypeEntity.getPayName(orderItem.getChannelType()));
+		tv_money.setText("￥"+orderItem.getAmount());
+		tv_remark.setText(orderItem.getRemark());
+		tv_time.setText(orderItem.getOrderTime());
+		tv_shopname.setText(orderItem.getShopName());
+		tv_username.setText(MyApplication.mDataCache.userName);
+		codeMsg = orderItem.getOrderId();
+		getOrderMsg(orderItem.getOrderId());
+		btnSure.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				printManager.printOneDetailNew();
+			}
+		});
+	}
+
+	private void getOrderMsg(String orderId) {
+		PrintByOrderidTask task = new PrintByOrderidTask(mContext, orderId);
+		task.setProgressVisiable(true);
+		task.setOnTaskFinished(new OnTaskFinished() {
+
+			@Override
+			public void onSucc(Object obj) {
+				// TODO Auto-generated method stub
+				PrintByOrderidResponse response = (PrintByOrderidResponse) obj;
+				PrintOrderEntity mPrintOrderEntity = response.getPrintMsg();
+				PrintOrderEntity entity = new PrintOrderEntity(
+						mPrintOrderEntity.getTransactionId(), mPrintOrderEntity
+								.getOrderId(),
+						mPrintOrderEntity.getOrderTime(), mPrintOrderEntity
+								.getAccount(), mPrintOrderEntity.getAmount(),
+						mPrintOrderEntity.getRemark(), mPrintOrderEntity
+								.getShopName(), mPrintOrderEntity
+								.getChannelType());
+				printManager.setmPrintOrderEntity(entity);
+			}
+
+			@Override
+			public void onFail(Object obj) {
+				// TODO Auto-generated method stub
+				PrintByOrderidResponse response = (PrintByOrderidResponse) obj;
+				showToast(response.getResultDesc());
+			}
+		});
+		task.execute();
+	}
+}

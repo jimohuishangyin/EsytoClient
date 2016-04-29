@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:background="@color/white"
+    android:orientation="vertical" >
+	<RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp"
+	    android:layout_weight="45"
+	    android:background="@color/background"
+	    android:gravity="center_vertical">
+		
+	
+	    <RelativeLayout
+	        android:layout_width="fill_parent"
+	        android:layout_height="match_parent" >
+			<TextView 
+			    android:id="@+id/tvTitle"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_centerInParent="true"
+			    android:text="首页" 
+			    android:textColor="@color/white"
+			    android:textSize="22dp"/>
+	          
+	      </RelativeLayout>
+	      <ImageView
+		    android:id="@+id/ivTitleLeft"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:paddingTop="9dp"
+		    android:paddingBottom="9dp"
+		    android:paddingLeft="10dp"
+		    android:paddingRight="10dp"
+		    android:clickable="true"
+		    android:visibility="gone"
+		    android:layout_centerVertical="true"
+		    android:src="@drawable/icon_back"/>
+		 <ImageView
+		    android:id="@+id/ivTitleRight"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentRight="true"
+		    android:layout_centerVertical="true"
+		    android:paddingTop="9dp"
+		    android:paddingBottom="9dp"
+		    android:paddingLeft="10dp"
+		    android:paddingRight="10dp"
+		    android:clickable="true"
+		    
+		    android:src="@null"/>
+		 <TextView
+		    android:id="@+id/ivTitleTextRight"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentRight="true"
+		    android:layout_centerVertical="true"
+		    android:textColor="@color/white"
+		    android:textSize="18dp"
+		    android:paddingTop="9dp"
+		    android:paddingBottom="9dp"
+		    android:paddingLeft="10dp"
+		    android:paddingRight="10dp"
+		    android:visibility="gone"
+		    android:clickable="true"
+		    android:text=""/>
+	</RelativeLayout>
+	<ImageView
+	    android:layout_width="fill_parent"
+	    android:layout_height="0dp"
+	    android:layout_weight="0"
+	    android:src="#7f000000"/>
+</LinearLayout>

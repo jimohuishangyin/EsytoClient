@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:client="http://schemas.android.com/apk/res/com.ec2.yspay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+	<com.ec2.yspay.widget.MyTitle 
+        android:id="@+id/rl_top"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        client:isShowLeft="true"
+        client:titleName="打印"/>
+	<com.ec2.yspay.widget.PullToRefreshLayout
+    	android:id="@+id/refresh_view"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent" >
+	    <include layout="@layout/refresh_head" />
+	    <!-- 支持所有实现Pullable接口的View -->
+	
+	    <com.ec2.yspay.widget.PullableListView
+	        android:id="@+id/content_view"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:background="@color/white"
+	        android:divider="@color/month_bg_color"
+	        android:dividerHeight="12dp" />
+	
+	    <include layout="@layout/load_more" />
+	
+	</com.ec2.yspay.widget.PullToRefreshLayout>
+	
+</LinearLayout>

@@ -1,0 +1,14 @@
+package com.ec2.yspay;
+
+import android.os.Bundle;
+
+import com.ec2.yspay.activity.BaseActivity;
+
+public class FeedBackActivity extends BaseActivity {
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
+
+}

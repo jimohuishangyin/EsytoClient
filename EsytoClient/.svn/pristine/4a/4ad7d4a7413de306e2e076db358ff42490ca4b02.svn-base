@@ -1,0 +1,228 @@
+/*
+ * 类文件名:  Client.java
+ * 著作版权:  深圳市易商云电子商务有限公司 Copyright 2012-2022, E-mail: hongxiang_luo@esyto.com, All rights reserved
+ * 功能描述:  <描述>
+ * 类创建人:  罗洪祥
+ * 创建时间:  2015年9月14日
+ * 功能版本:  V001Z0001
+ */
+package com.ec2.yspay.http.request;
+
+import java.util.Map;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.Context;
+
+import com.ec2.yspay.common.Log;
+import com.ec2.yspay.common.MyApplication;
+import com.ec2.yspay.common.NetworkUtil;
+import com.ec2.yspay.common.Setting;
+import com.ec2.yspay.http.ErrorCode;
+
+/**
+ * 网络请求客户端
+ * 
+ * @author   罗洪祥
+ * @version  V001Z0001
+ * @date     2015年9月14日
+ * @see  [相关类/方法]
+ * @since  [产品/模块版本]
+ */
+public class Client
+{
+    private String apiUrl;
+    private ClientRequest clientRequest;
+    private Context mContext;
+    private ClientResult clientResult;
+    
+    public Client(Context context,String apiUrl){
+        this.apiUrl = apiUrl;
+        this.mContext = context;
+    }
+    
+    /**
+     * 绑定请求参数
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年9月15日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    public Client build(ClientRequest clientRequest){
+        this.clientRequest = clientRequest;
+        String token = MyApplication.mDataCache.token;
+        if(token==null)token = Setting.getToken(mContext);
+        this.clientRequest.addParam("token",MyApplication.mDataCache.token);
+        return this;
+    }
+    
+    /**
+     * post请求，返回结果，需要在子线程中运行
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年9月15日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    public ClientResult post(){
+        clientResult = new ClientResult();
+        if(!NetworkUtil.isNetworkAvailable(mContext)){
+            clientResult.setResultCode(ErrorCode.NETWORK_ERROR);
+            clientResult.setResultDesc(ErrorCode.get(ErrorCode.NETWORK_ERROR));
+            return clientResult;
+        }
+     // 第一步，创建HttpPost对象 
+        String url = apiUrl+clientRequest.getRestPath();//"http://192.168.0.70:8888/com.ec2.ecp.ui/app/trans";//apiUrl+clientRequest.getRestPath();
+        HttpPost httpPost = new HttpPost(url); 
+        HttpParams parms = new BasicHttpParams();
+        parms.setParameter("charset", HTTP.UTF_8);
+        HttpConnectionParams.setConnectionTimeout(parms, 8 * 1000);
+        HttpConnectionParams.setSoTimeout(parms, 8 * 1000);
+        HttpClient client = new DefaultHttpClient(parms);
+        httpPost.addHeader("Content-Type", "application/json");
+        httpPost.addHeader("charset", HTTP.UTF_8);
+        String json;
+        try
+        {
+            json = getJsonResquest();
+            Log.w("request", "url:"+url+"; 传入参数:"+json);
+            StringEntity s = new StringEntity(json);    
+            s.setContentEncoding("UTF-8");    
+            s.setContentType("application/json");  
+            
+            httpPost.setEntity(s); 
+        }
+        catch (Exception e1)
+        {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        HttpResponse httpResponse = null; 
+        
+        try {
+            httpResponse = client.execute(httpPost); 
+            //System.out.println(httpResponse.getStatusLine().getStatusCode()); 
+            clientResult.setResultCode(httpResponse.getStatusLine().getStatusCode());
+            String result = EntityUtils.toString(httpResponse.getEntity()); 
+            Log.w("response", "code:"+httpResponse.getStatusLine().getStatusCode()
+                +" 接收数据:"+result);
+            if (httpResponse.getStatusLine().getStatusCode() == 200) {
+                // 第三步，使用getEntity方法活得返回结果 
+                result = getJsonResponse(result);
+            }
+            clientResult.setResult(result);
+        }  catch (Exception e) { 
+            e.printStackTrace(); 
+            clientResult.setResultCode(ErrorCode.CONNECT_ERROR);
+            clientResult.setResultDesc(ErrorCode.get(ErrorCode.CONNECT_ERROR));
+        }
+        return clientResult;
+    }
+    public ClientResult get(){
+        ClientResult clientResult = new ClientResult();
+        if(!NetworkUtil.isNetworkAvailable(mContext)){
+            clientResult.setResultCode(ErrorCode.NETWORK_ERROR);
+            clientResult.setResultDesc(ErrorCode.get(ErrorCode.NETWORK_ERROR));
+            return clientResult;
+        }
+     // 第一步，创建HttpPost对象 
+        String url = apiUrl+clientRequest.getRestPath()+getResquest();//"http://192.168.0.70:8888/com.ec2.ecp.ui/app/trans";//apiUrl+clientRequest.getRestPath();
+        Log.w("request", "url:"+url);
+        HttpGet httpGet=new HttpGet(url);
+        HttpParams parms = new BasicHttpParams();
+        parms.setParameter("charset", HTTP.UTF_8);
+        HttpConnectionParams.setConnectionTimeout(parms, 8 * 1000);
+        HttpConnectionParams.setSoTimeout(parms, 8 * 1000);
+        HttpClient client = new DefaultHttpClient(parms);
+       
+        HttpResponse httpResponse = null; 
+        
+        try {
+            httpResponse = client.execute(httpGet); 
+            //System.out.println(httpResponse.getStatusLine().getStatusCode()); 
+            clientResult.setResultCode(httpResponse.getStatusLine().getStatusCode());
+            String result = EntityUtils.toString(httpResponse.getEntity()); 
+            Log.w("response", "code:"+httpResponse.getStatusLine().getStatusCode()
+                +" 接收数据:"+result);
+            if (httpResponse.getStatusLine().getStatusCode() == 200) {
+                // 第三步，使用getEntity方法活得返回结果 
+                result = getJsonResponse(result);
+                clientResult.setResult(result);
+            }else{
+                clientResult.setResultDesc(ErrorCode.get(ErrorCode.CONNECT_ERROR));
+            }
+            
+        }  catch (Exception e) { 
+            e.printStackTrace(); 
+            clientResult.setResultCode(ErrorCode.CONNECT_ERROR);
+            clientResult.setResultDesc(ErrorCode.get(ErrorCode.CONNECT_ERROR));
+        }
+        return clientResult;
+    }
+    
+    /**
+     * 请求数据封装
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年9月15日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    private String getJsonResquest() throws JSONException{
+        Map<String, String> map = clientRequest.getFieldData();
+        JSONObject obj = new JSONObject();
+        for (String key : map.keySet())
+        {
+            obj.put(key, map.get(key));
+        }
+        JSONObject json = new JSONObject();
+        json.put("request_text", obj.toString());
+        return json.toString();
+    }
+    private String getResquest() {
+        Map<String, String> map = clientRequest.getFieldData();
+        String result = "";
+        boolean isFirst = true;
+        for (String key : map.keySet())
+        {
+            if(isFirst){
+                result = result+"?"+key+"="+map.get(key);
+            }else{
+                result = result+"&"+key+"="+map.get(key);
+            }
+            
+            isFirst = false;
+        }
+        return result;
+    }
+    private String getJsonResponse(String result){
+        JSONObject json;
+        String jsonResult = null;
+        try
+        {
+            json = new JSONObject(result);
+            jsonResult = json.getString("response_text");//json.getString("response_text");
+        }
+        catch (JSONException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            clientResult.setResultCode(ErrorCode.JSON_ERROR);
+            clientResult.setResultDesc(ErrorCode.get(ErrorCode.JSON_ERROR));
+        }
+        return jsonResult;
+    }
+}

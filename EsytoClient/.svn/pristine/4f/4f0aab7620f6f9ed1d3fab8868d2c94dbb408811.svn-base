@@ -1,0 +1,201 @@
+package com.ec2.yspay;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.TextView;
+
+import com.ec2.yspay.activity.BaseActivity;
+import com.ec2.yspay.adapter.PopupShopListAdapter;
+import com.ec2.yspay.common.Constants;
+import com.ec2.yspay.common.MyApplication;
+import com.ec2.yspay.common.ScreenUtils;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.cash.ShopItem;
+import com.ec2.yspay.http.response.BooleanResponse;
+import com.ec2.yspay.http.task.AddStaffTask;
+import com.ec2.yspay.pay.card.MPosPay;
+
+public class PersonalAddActivity extends BaseActivity implements OnClickListener
+{
+    private PopupWindow popMenu;
+    private View layoutPopMenu;
+    private ListView PopMenuList;
+    private List<ShopItem> mShopList = new ArrayList<ShopItem>();
+    private PopupShopListAdapter shopAdapter;
+    private TextView tvShopName;
+    private EditText etAccount,etUserName;
+    private int shopPosition=0,dutyPosition=0;
+    private RadioGroup rgDuty;
+    private RadioButton rbManager;
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_personal_add);
+        mShopList = (List<ShopItem>)getIntent().getSerializableExtra("shopList");
+        tvShopName = (TextView)findViewById(R.id.tv_shop_name);
+        tvShopName.setOnClickListener(this);
+        findViewById(R.id.btn_addstaff_send).setOnClickListener(this);
+        etAccount = (EditText)findViewById(R.id.et_num);
+        etUserName = (EditText)findViewById(R.id.et_name);
+        rgDuty = (RadioGroup) findViewById(R.id.rg_duty);
+        rbManager = (RadioButton) findViewById(R.id.rb_duty_manager);
+        if(MyApplication.mDataCache.duty==Constants.DUTY_BOSS)
+        	rbManager.setVisibility(View.VISIBLE);
+        else
+        	rbManager.setVisibility(View.GONE);
+        if(mShopList!=null&&mShopList.size()>0)
+            tvShopName.setText(mShopList.get(0).getShopName());
+        rgDuty.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				int radioButtonId = group.getCheckedRadioButtonId();
+				//根据ID获取RadioButton的实例
+				RadioButton rb = (RadioButton)PersonalAddActivity.this.findViewById(radioButtonId);
+				//更新文本内容，以符合选中项
+				String dutyName = rb.getText().toString();
+				if("员工".equals(dutyName)){
+					dutyPosition = 0;
+				}else{
+					dutyPosition = 1;
+				}
+			}
+		});
+    }
+    private void clickPopupMenu(){
+
+        if (popMenu != null && popMenu.isShowing()) {
+            popMenu.dismiss();
+        } else {
+
+            // 初始化数据项
+            layoutPopMenu = ((Activity) mContext).getLayoutInflater().inflate(
+                    R.layout.pop_shoplist, null);
+            PopMenuList = (ListView) layoutPopMenu
+                    .findViewById(R.id.menulist);
+            shopAdapter = new PopupShopListAdapter(mContext, mShopList);
+            PopMenuList.setAdapter(shopAdapter);
+            int width = ScreenUtils.getScreenWidth(mContext)-Toolkits.dip2px(mContext, 30);
+            popMenu = new PopupWindow(layoutPopMenu, width,
+                Toolkits.dip2px(mContext, 250));
+            // 点击listview中item的处理
+            PopMenuList
+                    .setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                        @Override
+                        public void onItemClick(AdapterView<?> arg0,
+                                View arg1, int arg2, long arg3) {
+                        
+                            if (popMenu != null && popMenu.isShowing()) {
+                                popMenu.dismiss();
+                            }
+                            shopPosition = arg2;
+                            tvShopName.setText(mShopList.get(shopPosition).getShopName());
+                        }
+                    });
+            ColorDrawable cd = new ColorDrawable(-0000);
+            popMenu.setBackgroundDrawable(cd);
+            popMenu.setAnimationStyle(R.style.PopupMenuAnimation);
+            popMenu.update();
+            popMenu.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+            popMenu.setTouchable(true); // 设置popupwindow可点击
+            popMenu.setOutsideTouchable(true); // 设置popupwindow外部可点击
+            popMenu.setFocusable(true); // 获取焦点
+            
+            popMenu.showAsDropDown(tvShopName, 0,0);
+
+        }
+    }
+    
+    
+    /**
+     * 重载方法
+     * @param v
+     */
+    @Override
+    public void onClick(View v)
+    {
+        // TODO Auto-generated method stub
+        switch (v.getId())
+        {
+            case R.id.tv_shop_name:
+
+            	if(mShopList.size()==1)
+            		return;
+                clickPopupMenu();
+                break;
+            case R.id.btn_addstaff_send:
+                validMsg(true);
+                break;
+            default:
+                break;
+        }
+    }
+    private void validMsg(boolean isSendSms){
+        String userName = etUserName.getText().toString().trim();
+        String account = etAccount.getText().toString().trim();
+        if(shopPosition<0){
+            showToast("请选择门店");
+            return;
+        }else if(dutyPosition<0){
+            showToast("请选择员工类型"
+                + "");
+            return;
+        }else if(Toolkits.isStrEmpty(userName)){
+            showToast("请输入用户姓名");
+            return;
+        }else if(Toolkits.isStrEmpty(account)){
+            showToast("请输入员工手机号");
+            return;
+        }
+        if(!Toolkits.isMobileNO(account)){
+            showToast("请输入正确的手机号码");
+            return;
+        }
+        String duty = "3";
+        if(dutyPosition==1)
+            duty = "2";
+        addStaff(userName, mShopList.get(shopPosition).getShopCode(), account, duty, isSendSms);
+    }
+    private void addStaff(String userName,String shopCode,String account,String duty,boolean isSendSms){
+        AddStaffTask task = new AddStaffTask(mContext, userName, shopCode, account, duty, isSendSms);
+        task.setProgressVisiable(true);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                showToast("添加成功！");
+                finish();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                BooleanResponse response = (BooleanResponse)obj;
+                showToast(response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+}

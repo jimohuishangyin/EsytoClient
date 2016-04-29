@@ -1,0 +1,605 @@
+package com.ec2.yspay.activity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.PopupWindow.OnDismissListener;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.adapter.PopupShopListAdapter;
+import com.ec2.yspay.common.Constants;
+import com.ec2.yspay.common.MyApplication;
+import com.ec2.yspay.common.ScreenUtils;
+import com.ec2.yspay.common.ShopManager;
+import com.ec2.yspay.common.ToastUtils;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.cash.ShopItem;
+import com.ec2.yspay.http.cash.StaffItem;
+import com.ec2.yspay.http.response.BooleanResponse;
+import com.ec2.yspay.http.task.ResetStaffPwdTask;
+import com.ec2.yspay.http.task.UpdateStaffStatusTask;
+import com.ec2.yspay.http.task.UpdateStaffTask;
+import com.ec2.yspay.widget.MyTitle;
+import com.ec2.yspay.widget.WarnPopupWhiteRedDialog;
+
+public class PersonalUpdateActivity extends BaseActivity implements OnClickListener
+{
+    private PopupWindow popMenu;
+    private View layoutPopMenu;
+    private ListView PopMenuList;
+    private List<ShopItem> mShopList = new ArrayList<ShopItem>();
+    private PopupShopListAdapter shopAdapter;
+    private TextView tvShopName,tvDuty;
+    private TextView tvAccount,tvUserName,tvStatus;
+    private int shopPosition=0,dutyPosition=-1;
+    private String[] dutyName;
+    private String[] statusName={"正常","锁定","停用"};
+    private int staffStatus;
+    private String dutyNameInit="";
+    private StaffItem staffItem;
+    private static final String DUTY_MANAGER="主管",DUTY_STAFF="员工";
+    private String  etUserNameInit;
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_personal_update);
+        
+        mShopList = (List<ShopItem>)getIntent().getSerializableExtra("shopList");
+        ShopManager.getInstance(mContext).setShoplist(mShopList);
+        staffItem = (StaffItem)getIntent().getSerializableExtra("staff");
+        tvShopName = (TextView)findViewById(R.id.tv_shop_name);
+        tvShopName.setOnClickListener(this);
+        MyTitle title=(MyTitle) findViewById(R.id.rl_top);
+        title.setLeftOnclickListener(new OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {               
+                savePopupDialog();
+            }
+        });
+        title.setRightOnclickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				validMsg();
+			}
+		});
+       // findViewById(R.id.btn_addstaff).setOnClickListener(this);
+        findViewById(R.id.btn_addstaff_send).setOnClickListener(this);
+        findViewById(R.id.btn_reset_pwd).setOnClickListener(this);
+        tvDuty = (TextView)findViewById(R.id.tv_duty);
+        tvAccount = (TextView)findViewById(R.id.tv_num);
+        tvUserName = (TextView)findViewById(R.id.tv_name);
+        tvStatus = (TextView) findViewById(R.id.tv_status);
+        tvStatus.setText(staffItem.getStatusName());
+        staffStatus = Integer.valueOf(staffItem.getStatus());
+        if(MyApplication.mDataCache.duty==Constants.DUTY_BOSS){
+            dutyName = new String[]{DUTY_MANAGER,DUTY_STAFF};
+            if(staffItem.getDuty()==3)
+                dutyPosition = 1;
+            else dutyPosition = 0;
+        }else{
+            dutyPosition = 0;
+            dutyName = new String[]{DUTY_STAFF};
+        }
+        tvDuty.setText(dutyName[dutyPosition]);
+
+        dutyNameInit=dutyName[dutyPosition];
+        tvDuty.setOnClickListener(this);
+        tvUserName.setOnClickListener(this);
+        tvStatus.setOnClickListener(this);
+        getShopPosition();
+        tvAccount.setText(staffItem.getAccount());
+        tvUserName.setText(staffItem.getUserName());
+        etUserNameInit =staffItem.getUserName();
+        if(shopPosition>=0){
+            tvShopName.setText(mShopList.get(shopPosition).getShopName());
+        }
+    }
+    private void getShopPosition(){
+        for(int i=0;i<mShopList.size();i++){
+            if(staffItem.getShopCode().equals(mShopList.get(i).getShopCode())){
+                shopPosition = i;
+                break;
+            }
+        }
+    }
+    
+@Override
+public boolean onKeyDown(int keyCode, KeyEvent event) {
+    // TODO Auto-generated method stub
+    
+    if (keyCode == KeyEvent.KEYCODE_BACK )  {
+        savePopupDialog();
+    }
+        return false;
+    }
+
+    private void savePopupDialog() {
+        if ((etUserNameInit.equals(tvUserName.getText().toString()))
+                && (mShopList.get(shopPosition).getShopName().equals(tvShopName
+                        .getText().toString()))
+                && validDuty()&&mShopList.get(shopPosition).getShopCode().equals(staffItem.getShopCode())) 
+        {
+            finish();
+        } else {
+            // TODO Auto-generated method stub
+            final WarnPopupWhiteRedDialog.Builder builder = new WarnPopupWhiteRedDialog.Builder(
+                    mContext);
+            // builder.setMessage("该凭证号已超过撤销时间,只能通过现金退款,是否继续");
+            builder.setTitle("提示");
+            builder.setMessage("是否保存");
+            builder.setNegativeButton("取消",
+                    new android.content.DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            finish();
+
+                        }
+                    });
+            builder.setPositiveButton("确定",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            dialog.dismiss();
+
+                            validMsg();
+
+                        }
+                    });
+
+            builder.create().show();
+
+        }
+
+    }
+
+    /**
+     * <一句话功能简述>
+     * <功能详细描述>
+     * 
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年12月12日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    private boolean validDuty()
+    {
+        if(staffItem.getDuty()==3){
+            if(dutyName[dutyPosition].equals(DUTY_STAFF))
+                return true;
+            else
+                return false;
+        }else if(staffItem.getDuty()==2){
+            if(dutyName[dutyPosition].equals(DUTY_MANAGER))
+                return true;
+            else
+                return false;
+        }
+        return true;
+    }
+    private void clickPopupMenu() {
+
+        if (popMenu != null && popMenu.isShowing()) {
+            popMenu.dismiss();
+        } else {
+
+            // 初始化数据项
+            layoutPopMenu = ((Activity) mContext).getLayoutInflater().inflate(
+                    R.layout.pop_shoplist, null);
+            PopMenuList = (ListView) layoutPopMenu.findViewById(R.id.menulist);
+            shopAdapter = new PopupShopListAdapter(mContext, mShopList);
+            PopMenuList.setAdapter(shopAdapter);
+            int width = ScreenUtils.getScreenWidth(mContext)
+                    - Toolkits.dip2px(mContext, 30);
+            width = Toolkits.getViewWidth(tvShopName);
+            popMenu = new PopupWindow(layoutPopMenu, width, Toolkits.dip2px(
+                    mContext, 200));
+            // 点击listview中item的处理
+            PopMenuList
+                    .setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                        @Override
+                        public void onItemClick(AdapterView<?> arg0, View arg1,
+                                int arg2, long arg3) {
+
+                            if (popMenu != null && popMenu.isShowing()) {
+                                popMenu.dismiss();
+                            }
+                            shopPosition = arg2;
+                            tvShopName.setText(mShopList.get(shopPosition)
+                                    .getShopName());
+                        }
+                    });
+            ColorDrawable cd = new ColorDrawable(-0000);
+            popMenu.setBackgroundDrawable(cd);
+            popMenu.setAnimationStyle(R.style.PopupMenuAnimation);
+            popMenu.update();
+            popMenu.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+            popMenu.setTouchable(true); // 设置popupwindow可点击
+            popMenu.setOutsideTouchable(true); // 设置popupwindow外部可点击
+            popMenu.setFocusable(true); // 获取焦点
+
+            popMenu.showAsDropDown(tvShopName, 0, 0);
+
+        }
+    }
+
+    private PayTypeRadioOnClick payTypeRadioOnClick = new PayTypeRadioOnClick(
+            dutyPosition);
+
+    private void showPayTypePicker() {
+        AlertDialog ad = new AlertDialog.Builder(mContext)
+                .setTitle("选择员工类型")
+                .setSingleChoiceItems(dutyName, payTypeRadioOnClick.getIndex(),
+                        payTypeRadioOnClick).create();
+        ad.show();
+    }
+
+    class PayTypeRadioOnClick implements DialogInterface.OnClickListener {
+        private int index;
+
+        public PayTypeRadioOnClick(int index) {
+            this.index = index;  
+        }  
+        public void setIndex(int index){  
+            this.index=index;  
+        }  
+        public int getIndex(){  
+            return index;  
+        }
+        /**
+         * 重载方法
+         * @param dialog
+         * @param which
+         */
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            // TODO Auto-generated method stub
+            index = which;
+            dialog.dismiss();  
+            dutyPosition = index;
+            tvDuty.setText(dutyName[index]);
+        }  
+    }
+    private StaffStatusRadioOnClick statusRadioOnClick ;
+
+    private void showStatusPicker() {
+    	statusRadioOnClick = new StaffStatusRadioOnClick(staffStatus-1);
+        AlertDialog ad = new AlertDialog.Builder(mContext)
+                .setTitle("修改员工状态")
+                .setSingleChoiceItems(statusName, statusRadioOnClick.getIndex(),
+                		statusRadioOnClick).create();
+        ad.show();
+    }
+
+    class StaffStatusRadioOnClick implements DialogInterface.OnClickListener {
+        private int index;
+
+        public StaffStatusRadioOnClick(int index) {
+            this.index = index;  
+        }  
+        public void setIndex(int index){  
+            this.index=index;  
+        }  
+        public int getIndex(){  
+            return index;  
+        }
+        /**
+         * 重载方法
+         * @param dialog
+         * @param which
+         */
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            // TODO Auto-generated method stub
+            index = which;
+            dialog.dismiss();  
+            staffStatus = index+1;
+            tvStatus.setText(statusName[index]);
+        }  
+    }
+    /**
+     * 重载方法
+     * @param v
+     */
+    @Override
+    public void onClick(View v)
+    {
+        // TODO Auto-generated method stub
+        switch (v.getId())
+        {
+            case R.id.tv_shop_name:
+//                if(mShopList.size()==1)
+//                    return;
+//                clickPopupMenu();
+            	Intent intent = new Intent(mContext, ShopListViewActivity.class);
+            	intent.putExtra("isShowAll", false);
+				startActivityForResult(intent, 101);
+                break;
+      /*  zzm 2015,12,10    case R.id.btn_addstaff:
+                validMsg();
+                break;*/
+            case R.id.btn_addstaff_send:
+                
+                showWarnDialog();
+                
+                break;
+            case R.id.tv_duty:
+                showPayTypePicker();
+                break;
+            case R.id.tv_name:
+            	showNamePopwindow("请输入员工姓名");
+            	break;
+            case R.id.tv_status:
+            	showStatusPicker();
+            	break;
+            case R.id.btn_reset_pwd:
+                showResetWarnDialog();
+                break;
+            default:
+                break;
+        }
+    }
+    private PopupWindow popupWindow;
+    private void showNamePopwindow(String hint){
+        View outerView = LayoutInflater.from(mContext).inflate(R.layout.layout_pop_update_name, null);
+        final EditText tvName = (EditText)outerView.findViewById(R.id.et_update_name);
+        tvName.setHint(hint);
+        TextView tvSure = (TextView)outerView.findViewById(R.id.tv_sure);
+        TextView tvCancel = (TextView)outerView.findViewById(R.id.tv_cancel);
+        tvSure.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                tvUserName.setText(tvName.getText().toString());
+                popupWindow.dismiss();
+            }
+        });
+        tvCancel.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                // TODO Auto-generated method stub
+                popupWindow.dismiss();
+            }
+        });
+        showPopupwindow(outerView);
+    }
+    private void showPopupwindow(View outerView){
+        popupWindow = new PopupWindow(outerView, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, true);  
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
+      //设置SelectPicPopupWindow弹出窗体动画效果  
+        popupWindow.setAnimationStyle(R.style.PopupAnimation);  
+        //实例化一个ColorDrawable颜色为半透明  
+        ColorDrawable dw = new ColorDrawable(0xb0000000);  
+     // 设置PopupWindow弹出软键盘模式（此处为覆盖式）
+        popupWindow.setSoftInputMode(PopupWindow.INPUT_METHOD_NEEDED);
+        popupWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+//        //产生背景变暗效果
+        popupWindow.setBackgroundDrawable(dw);
+        WindowManager.LayoutParams lp=getWindow().getAttributes();
+        lp.alpha = 0.4f;
+        getWindow().setAttributes(lp);
+        //设置SelectPicPopupWindow弹出窗体的背景  
+        popupWindow.setOnDismissListener(new OnDismissListener()
+        {
+            
+            @Override
+            public void onDismiss()
+            {
+                // TODO Auto-generated method stub
+                WindowManager.LayoutParams lp=getWindow().getAttributes();
+                lp.alpha = 1f;
+                getWindow().setAttributes(lp);
+                
+                //
+            }
+        });
+        popupWindow.showAtLocation(findViewById(R.id.ll_main), Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0);
+    }
+    private void validMsg(){
+        String userName = tvUserName.getText().toString().trim();
+        String account = tvAccount.getText().toString().trim();
+        if(shopPosition<0){
+            showToast("请选择门店");
+            return;
+        }else if(dutyPosition<0){
+            showToast("请选择员工类型"
+                + "");
+            return;
+        }else if(Toolkits.isStrEmpty(userName)){
+            showToast("请输入用户姓名");
+            return;
+        }else if(Toolkits.isStrEmpty(account)){
+            showToast("请输入员工手机号");
+            return;
+        }
+        String duty = "3";
+        if(dutyName[dutyPosition].equals(DUTY_MANAGER))
+            duty = "2";
+        updateStaff(userName, mShopList.get(shopPosition).getShopCode(), account, duty);
+    }
+    private void updateStaff(String userName,String shopCode,String account,String duty){
+        UpdateStaffTask task = new UpdateStaffTask(mContext, userName, shopCode, account, duty);
+        task.setStatus(staffStatus+"");
+        task.setProgressVisiable(true);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                showToast("修改成功！");
+                finish();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                BooleanResponse response = (BooleanResponse)obj;
+                showToastLong(response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+    private void showResetWarnDialog() {
+
+        final WarnPopupWhiteRedDialog.Builder builder = new WarnPopupWhiteRedDialog.Builder(mContext);
+        //builder.setMessage("该凭证号已超过撤销时间,只能通过现金退款,是否继续");
+        builder.setTitle("提示");
+        builder.setMessage("是否确定要重置该员工密码？");
+        builder.setNegativeButton("取消",
+                new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    
+                        
+                    }
+                });
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                
+                dialog.dismiss();
+                //调用关闭订单接口
+                resetStaff();
+                
+            }
+        });
+
+        builder.create().show();
+    }
+    /**
+     * <一句话功能简述>
+     * <功能详细描述>
+     * 
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年12月8日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    protected void resetStaff()
+    {
+        ResetStaffPwdTask task = new ResetStaffPwdTask(mContext);
+        task.setProgressVisiable(true);
+        task.setAccount(staffItem.getAccount());
+        task.setDuty(staffItem.getDuty()+"");
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                showToast("密码重置成功！");
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                BooleanResponse response = (BooleanResponse)obj;
+                showToastLong(response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+    private void showWarnDialog() {
+        final WarnPopupWhiteRedDialog.Builder builder = new WarnPopupWhiteRedDialog.Builder(mContext);
+        //builder.setMessage("该凭证号已超过撤销时间,只能通过现金退款,是否继续");
+        builder.setTitle("提示");
+        builder.setMessage("是否确定要删除该员工？");
+        builder.setNegativeButton("取消",
+                new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                
+                dialog.dismiss();
+                //调用关闭订单接口
+                updateStaffStatus(4);
+                
+            }
+        });
+
+        builder.create().show();
+    }
+    /**
+     * status 
+     *  1：正常
+	 *	2：锁定
+	 *	3：停用
+	 *	4：删除
+	 *
+     * @Description: TODO 
+     * @param @param status  
+     * @return void
+     * @author 罗洪祥
+     * @date 2016年4月12日 上午11:05:08
+     */
+    private void updateStaffStatus(int status){
+        UpdateStaffStatusTask task = new UpdateStaffStatusTask(mContext);
+        task.setAccount(staffItem.getAccount());
+        task.setStatus(status+"");
+        task.setProgressVisiable(true);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                ToastUtils.show(mContext, "删除成功");
+                finish();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                BooleanResponse response = (BooleanResponse)obj;
+                ToastUtils.showLong(mContext, response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	if(requestCode==101&&resultCode==100){
+    		shopPosition = data.getIntExtra("index", 0);
+            tvShopName.setText(mShopList.get(shopPosition)
+                    .getShopName());
+//    		tvShopName.setText(ShopManager.getInstance(mContext).getCurrentShopName());
+    	}
+    }
+}

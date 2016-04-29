@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/ll_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android_custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <com.ec2.yspay.widget.HalfRoundProgressBar
+        android:id="@+id/roundProgressBar1"
+        android:layout_width="@dimen/report_halfround_width"
+        android:layout_height="@dimen/report_halfround_width"
+        android:layout_centerInParent="true"
+        android_custom:roundColor="#00000000"
+        android_custom:roundRadius="130dp"
+        android_custom:roundWidth="@dimen/report_circle_roundWidth"
+        android_custom:textSize="@dimen/report_circle_text_size"
+        android_custom:roundProgressColor="#e60012"
+        android_custom:textIsDisplayable="true" />
+    <com.ec2.yspay.widget.HalfRoundProgressBar
+        android:id="@+id/roundProgressBar2"
+        android:layout_width="@dimen/report_halfround_width"
+        android:layout_height="@dimen/report_halfround_width"
+        android:layout_centerInParent="true"
+        android_custom:roundColor="#00000000"
+        android_custom:roundRadius="110dp"
+        android_custom:roundWidth="@dimen/report_circle_roundWidth"
+        android_custom:textSize="@dimen/report_circle_text_size"
+        android_custom:roundProgressColor="#1d95d4" />
+    <com.ec2.yspay.widget.HalfRoundProgressBar
+        android:id="@+id/roundProgressBar3"
+        android:layout_width="@dimen/report_halfround_width"
+        android:layout_height="@dimen/report_halfround_width"
+        android:layout_centerInParent="true"
+        android_custom:roundColor="#00000000"
+        android_custom:roundRadius="90dp"
+        android_custom:roundWidth="@dimen/report_circle_roundWidth"
+        android_custom:textSize="@dimen/report_circle_text_size"
+        android_custom:roundProgressColor="#2bad37" />
+    <com.ec2.yspay.widget.HalfRoundProgressBar
+        android:id="@+id/roundProgressBar4"
+        android:layout_width="@dimen/report_halfround_width"
+        android:layout_height="@dimen/report_halfround_width"
+        android:layout_centerInParent="true"
+        android_custom:roundRadius="70dp"
+        android_custom:roundColor="#00000000"
+        android_custom:roundWidth="@dimen/report_circle_roundWidth"
+        android_custom:textSize="@dimen/report_circle_text_size"
+        android_custom:roundProgressColor="#113178" />
+    <com.ec2.yspay.widget.HalfRoundProgressBar
+        android:id="@+id/roundProgressBar5"
+        android:layout_width="@dimen/report_halfround_width"
+        android:layout_height="@dimen/report_halfround_width"
+        android:layout_centerInParent="true"
+        android_custom:roundColor="#00000000"
+        android_custom:roundRadius="50dp"
+        android_custom:roundWidth="@dimen/report_circle_roundWidth"
+        android_custom:textSize="@dimen/report_circle_text_size"
+        android_custom:roundProgressColor="#ec6517" />
+    <com.ec2.yspay.widget.HalfRoundProgressBar
+        android:id="@+id/roundProgressBar6"
+        android:layout_width="@dimen/report_halfround_width"
+        android:layout_height="@dimen/report_halfround_width"
+        android:layout_centerInParent="true"
+        android_custom:roundColor="#00000000"
+        android_custom:roundRadius="30dp"
+        android_custom:roundWidth="@dimen/report_circle_roundWidth"
+        android_custom:textSize="@dimen/report_circle_text_size"
+        android_custom:roundProgressColor="#a79ac4" />
+</RelativeLayout>

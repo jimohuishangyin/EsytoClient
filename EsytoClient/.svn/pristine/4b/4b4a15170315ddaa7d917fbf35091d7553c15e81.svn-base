@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" 
+    android:layout_height="match_parent">
+<LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:orientation="vertical" >
+    <include layout="@layout/layout_shop" />
+    <include layout="@layout/layout_gray_view" />
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+        <LinearLayout 
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+            <TextView 
+                android:id="@+id/tv_year1"
+                style="@style/textview_gray"
+                android:textSize="16dp"
+                android:text="年份"/>
+            <LinearLayout 
+                android:id="@+id/ll_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="7dp"
+                android:orientation="horizontal">
+                <TextView 
+                    android:id="@+id/tv_year2"
+                    style="@style/textview_pink"
+                    android:textSize="20dp"
+                	android:text="2015年"/>
+                <ImageView 
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/triangle_button2"/>
+            </LinearLayout>
+        </LinearLayout>
+        <ImageView 
+            android:layout_width="1dp"
+            android:layout_height="53dp"
+            android:src="@color/line_gray"/>
+        <RelativeLayout 
+            android:layout_width="0dp"
+            android:layout_weight="4"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView style="@style/textview_gray"
+                android:textSize="16dp"
+                android:layout_marginLeft="7dp"
+                android:text="收入（元）"/>
+            <TextView 
+                android:id="@+id/tv_total_money"
+                style="@style/textview_pink"
+                android:textSize="24dp"
+                android:layout_marginTop="24dp"
+            	android:text="100001.00万"/>
+        </RelativeLayout>
+        <RelativeLayout 
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView style="@style/textview_gray"
+                android:textSize="16dp"
+                android:text="交易数（笔）"/>
+            <TextView 
+                android:id="@+id/tv_total_count"
+                style="@style/textview_pink"
+                android:textSize="24dp"
+                android:layout_marginTop="26dp"
+            	android:text="0"/>
+        </RelativeLayout>
+    </LinearLayout>
+    <ImageView 
+         android:layout_width="fill_parent"
+         android:layout_height="0.5dp"
+         android:layout_marginTop="10dp"
+         android:src="@color/baobiao_line"/>
+    <FrameLayout
+        android:id="@+id/fl_fragment"
+        android:layout_width="match_parent"
+        android:background="#ffffff"
+        android:layout_height="match_parent">
+    </FrameLayout>
+    
+</LinearLayout>
+</ScrollView>

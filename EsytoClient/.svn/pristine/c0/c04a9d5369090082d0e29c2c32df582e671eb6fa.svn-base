@@ -1,0 +1,59 @@
+package com.ec2.yspay;
+
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.ec2.yspay.common.AsyncImageLoader;
+import com.ec2.yspay.widget.HalfRoundImageView;
+import com.ec2.yspay.zxing.common.BitmapUtils;
+import com.google.zxing.WriterException;
+
+public class PersonalQrcodeActivity extends Activity
+{
+    private ImageView ivCode;
+    private Bitmap bitmap;
+    private String codeMsg = null;
+    private HalfRoundImageView ivTouxiang;
+    private TextView tvUserName;
+    private AsyncImageLoader asyImg = new AsyncImageLoader(this);
+    private String mUserImgUrl,mUserName,mUserCity,mUserImg;
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_personal_qrcode);
+        ivCode = (ImageView)findViewById(R.id.iv_code);
+        tvUserName = (TextView)findViewById(R.id.tv_user_name);
+        ivTouxiang = (HalfRoundImageView)findViewById(R.id.iv_touxiang);
+        mUserImgUrl = getIntent().getStringExtra("mUserImgUrl");
+        mUserName = getIntent().getStringExtra("mUserName");
+        mUserCity = getIntent().getStringExtra("mUserCity");
+        mUserImg = getIntent().getStringExtra("mUserImg");
+        String phone = getIntent().getStringExtra("mUserPhoneNum");
+        asyImg.LoadImage(mUserImgUrl,mUserImg, ivTouxiang,getResources().getDrawable(R.drawable.default_portrait));
+        tvUserName.setText(mUserName);
+        codeMsg = "MECARD:N:"+mUserName+";TEL:"+phone+";";
+        showQRCode();
+    }
+    private void showQRCode(){
+        if (codeMsg != null) {
+            try {
+                DisplayMetrics dm = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(dm);
+                int mScreenWidth = dm.widthPixels*4/5;
+                bitmap = BitmapUtils.createQRCode(codeMsg, mScreenWidth);
+                if (bitmap != null) {
+                    ivCode.setImageBitmap(bitmap);
+                    ivCode.setPadding(0, 0, 0, 0);
+                }
+            } catch (WriterException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+}

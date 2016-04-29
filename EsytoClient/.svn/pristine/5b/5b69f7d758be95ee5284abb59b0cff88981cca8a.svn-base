@@ -1,0 +1,127 @@
+package com.ec2.yspay.adapter;
+
+import java.util.List;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.entity.PrintOrderEntity;
+import com.ec2.yspay.entity.ProvinceItem;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+public class CityListAdapter extends BaseAdapter {
+	List<ProvinceItem> items;
+	Context context;
+	Handler mHandler;
+	private int parentPositon;
+	public CityListAdapter(Context context, List<ProvinceItem> items,Handler mHandler) {
+		this.context = context;
+		this.items = items;
+		this.mHandler = mHandler;
+	}
+
+	@Override
+	public int getCount() {
+		return items.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return items.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+
+	@Override
+	public View getView(final int position, View convertView, ViewGroup parent) {
+	    ViewHolder viewHolder = null;
+	    if(convertView == null){
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_listview_city, null);          
+            viewHolder=new ViewHolder();
+            viewHolder.tv_name = (TextView)convertView.findViewById(R.id.tv_name);
+            viewHolder.ll_parent = (LinearLayout)convertView.findViewById(R.id.ll_parent);
+            convertView.setTag(viewHolder);
+        }
+        else{
+            viewHolder = (ViewHolder)convertView.getTag();
+        } 
+	    ProvinceItem item = items.get(position);
+        viewHolder.tv_name.setText(item.getProvinceName());    
+        viewHolder.ll_parent.setOnClickListener(new OnClickListener()
+        {
+            
+            @Override
+            public void onClick(View v)
+            {
+                // TODO Auto-generated method stub
+                showCityPicker(position);
+                parentPositon = position;
+            }
+        });
+        return convertView;
+	}
+	class ViewHolder {
+        TextView tv_name;
+        LinearLayout ll_parent;
+	}
+	private CityRadioOnClick payTypeRadioOnClick = new CityRadioOnClick(0); 
+    public void showCityPicker(int position) {
+        ProvinceItem item = items.get(position);
+        List<String> list = item.getCityList();
+        
+        final int size =  list.size();
+        String[] arr = (String[])list.toArray(new String[size]);
+        AlertDialog ad =new AlertDialog.Builder(context).setTitle(item.getProvinceName())  
+            .setSingleChoiceItems(arr,payTypeRadioOnClick.getIndex(),payTypeRadioOnClick).create();  
+            ad.show();
+    }
+    class CityRadioOnClick implements DialogInterface.OnClickListener{  
+        private int index;  
+        
+        public CityRadioOnClick(int index){  
+         this.index = index;  
+        }  
+        public void setIndex(int index){  
+         this.index=index;  
+        }  
+        public int getIndex(){  
+         return index;  
+        }
+        /**
+         * 重载方法
+         * @param dialog
+         * @param which
+         */
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            // TODO Auto-generated method stub
+            index = which;
+//            Toast.makeText(mContext, "您已经选择了： " + index + ":" + nameStrs[index], Toast.LENGTH_LONG).show();  
+            dialog.dismiss();  
+            ProvinceItem item = items.get(parentPositon);
+            String city = item.getCityList().get(index);
+            Message msg = new Message();
+            Bundle bundle = new Bundle();
+            bundle.putString("province", item.getProvinceName());
+            bundle.putString("city", city);
+            msg.setData(bundle);
+            mHandler.sendMessage(msg);
+        }  
+    }
+
+}

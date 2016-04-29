@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ec2.yspay"
+    android:versionCode="2"
+    android:versionName="1.1.0" >
+
+    <uses-sdk android:minSdkVersion="14" />
+
+    <supports-screens android:anyDensity="true" />
+    <!-- uses permission -->
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.RESTART_PACKAGES" />
+    <uses-permission android:name="com.yunhui.app.permission.JPUSH_MESSAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- 允许程序禁用键盘锁 -->
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name=".common.MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ysf"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="channel201" />
+
+        <activity
+            android:name=".activity.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".zxing.activity.CaptureActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".zxing.activity.ResultActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".test.TestActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".activity.UserScanActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PayTypeActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.CashPayActivity"
+            android:label="@string/title_activity_cash_pay"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PayInfoActivity"
+            android:label="@string/title_activity_pay_info"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.WelcomeActivity"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.PicScanActivity"
+            android:label="@string/title_activity_pic_scan"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PaySuccessActivity"
+            android:label="@string/title_activity_pay_success"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PayWaittingActivity"
+            android:label="@string/title_activity_pay_waitting"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.RefundActivity"
+            android:label="@string/title_activity_refund"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PayInputActivity"
+            android:label="@string/title_activity_pay_input"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PayCashSuccessActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.RefundPaytypeActivity"
+            android:label="@string/title_activity_refund_paytype"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.RefundManagerPwdActivity"
+            android:label="@string/title_activity_refund_manager_pwd"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.RefundTradingNumberActivity"
+            android:label="@string/title_activity_refund_trading_number"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustUnspecified|stateHidden" >
+        </activity>
+        <activity
+            android:name=".activity.RefundDetailActivity"
+            android:label="@string/title_activity_refund_detail"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" >
+        </activity>
+        <activity
+            android:name=".activity.RegisterActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Light.NoTitleBar" >
+        </activity>
+        <activity
+            android:name=".activity.RegistNextActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Light.NoTitleBar" >
+        </activity>
+        <activity
+            android:name=".activity.LoginActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Light.NoTitleBar" >
+        </activity>
+        <activity
+            android:name=".activity.LoginSuc"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Light.NoTitleBar" >
+        </activity>
+        <activity
+            android:name=".activity.PicShowAllScreenActivity"
+            android:label="@string/title_activity_pic_show_all_screen"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="@android:color/transparent" >
+        </activity>
+        <activity
+            android:name=".activity.RefundSuccessActivity"
+            android:label="@string/title_activity_refund_success"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PrintHomeActivity"
+            android:label="@string/title_activity_print_home_"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PrintTradingNumberActivity"
+            android:label="@string/title_activity_print_home_"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PrintManagerPwdActivity"
+            android:label="@string/title_activity_print_home_"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PrintAllTogetherActivity"
+            android:label="@string/title_activity_print_all_together"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PrintListActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PrintPreviewActivity"
+            android:label="@string/title_activity_print_preview"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.PayPaikaActivity"
+            android:label="@string/title_activity_print_preview"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.nfc.action.TECH_DISCOVERED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/nfc_tech_filter" />
+        </activity>
+        <activity
+            android:name=".activity.PrintDetailActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".DeviceConnectActivity"
+            android:label="@string/title_activity_device_connect"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".ReportMainActivity"
+            android:label="@string/title_activity_report_main"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".LimitMoneyActivity"
+            android:label="@string/title_activity_limit_money"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.CashCollectActivity"
+            android:label="@string/title_activity_refund_paytype"
+            android:screenOrientation="portrait" >
+        </activity>
+        <!-- alipay sdk begin -->
+        <activity
+            android:name=".activity.CollectionBestActivity"
+            android:label="@string/title_activity_refund_paytype"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="com.bestpay.app.PaymentTask"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Black.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.bestpay.app.H5PayActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:windowSoftInputMode="adjustPan|stateHidden|adjustResize" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="cn.md.dt"
+                    android:pathPrefix=""
+                    android:scheme="dotrust" />
+            </intent-filter>
+        </activity>
+        <!-- alipay sdk end -->
+        <!-- 银行卡支付  star -->
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:permission="android.permission.BAIDU_LOCATION_SERVICE"
+            android:process=":remote" >
+        </service>
+
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="F9SQmsmek3RUw7tST93X9WgNbKDsUusR" >
+        </meta-data>
+
+        <activity
+            android:name="com.chinaums.mpos.activity.acquire.ElectricVoucherActivity"
+            android:allowTaskReparenting="true"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.chinaums.mpos.activity.acquire.ElectricSignatureActivity"
+            android:allowTaskReparenting="true"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenSize"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.chinaums.mpos.activity.acquire.ElectricSignatureMsgActivity"
+            android:allowTaskReparenting="true"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.chinaums.mpos.activity.acquire.BoxSwipeActivity"
+            android:allowTaskReparenting="true"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.chinaums.mpos.activity.management.DeviceManagerActivity"
+            android:allowTaskReparenting="true"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.chinaums.mpos.activity.acquire.OrderConfirmActivity"
+            android:allowTaskReparenting="true"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+
+        <!-- Mpos插件版本 -->
+        <activity
+            android:name="com.chinaums.mpos.activity.ThirdPartyWrapActivity"
+            android:allowTaskReparenting="true"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent" >
+        </activity>
+        <activity
+            android:name="com.chinaums.mpos.activity.acquire.PrintBillActivity"
+            android:allowTaskReparenting="true"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.sa.isecurity.plugin.SAKbdActivity"
+            android:allowTaskReparenting="true"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent" >
+        </activity>
+        <!-- 银行卡支付  end -->
+        <activity
+            android:name=".activity.CollectAliActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.ForgetPasswordActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.ResetPasswordActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.CollectWChatActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+        </activity>
+
+        <receiver android:name=".pay.wchat.AppRegister" >
+            <intent-filter>
+                <action android:name="com.tencent.mm.plugin.openapi.Intent.ACTION_REFRESH_WXAPP" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name=".SettleAccountsActivity"
+            android:label="@string/title_activity_settle_accounts" >
+        </activity>
+        <activity
+            android:name=".StoreMainActivity"
+            android:label="@string/title_activity_company_main" >
+        </activity>
+        <activity
+            android:name=".activity.CompanyEditActivity"
+            android:label="@string/title_activity_company_main" >
+        </activity>
+        <activity
+            android:name=".PersonalMsgActivity"
+            android:label="@string/title_activity_personal_msg" >
+        </activity>
+        <activity
+            android:name=".ShopListViewActivity"
+            android:label="@string/title_activity_city_list" >
+        </activity>
+        <activity
+            android:name=".activity.ClipImageActivity"
+            android:label="@string/title_activity_city_list" >
+        </activity>
+        <activity
+            android:name=".PersonalQrcodeActivity"
+            android:label="@string/title_activity_personal_qrcode" >
+        </activity>
+        <activity
+            android:name=".PersonalManagementActivity"
+            android:label="@string/title_activity_personal_management" >
+        </activity>
+        <activity
+            android:name=".PersonalAddActivity"
+            android:label="@string/title_activity_personal_add" >
+        </activity>
+        <activity
+            android:name=".activity.PersonalUpdateActivity"
+            android:label="@string/title_activity_personal_add" >
+        </activity>
+        <activity
+            android:name=".AboutUsActivity"
+            android:label="@string/title_activity_about_us" >
+        </activity>
+        <activity
+            android:name=".CashCollectListActivity"
+            android:label="@string/title_activity_cash_collect_list" >
+        </activity>
+        <activity
+            android:name=".EquipmentActivity"
+            android:label="@string/title_activity_equipment" >
+        </activity>
+        <activity
+            android:name=".PersonalPwdChangeActivity"
+            android:label="@string/title_activity_personal_pwd_change" >
+        </activity>
+        <activity
+            android:name=".pay.best.TestMainActivity"
+            android:label="@string/title_activity_personal_pwd_change" >
+        </activity>
+        <activity
+            android:name=".OrderDetailActivity"
+            android:label="@string/title_activity_order_detail" >
+        </activity>
+        <activity
+            android:name=".BusinessManagementActivity"
+            android:label="@string/title_activity_business_management" >
+        </activity>
+        <activity
+            android:name=".StoreManagementActivity"
+            android:label="@string/title_activity_store_management" >
+        </activity>
+        <activity
+            android:name=".StoreAddActivity"
+            android:label="@string/title_activity_store_add" >
+        </activity>
+        <activity android:name=".OrderQueryActivity" >
+        </activity>
+        <activity android:name=".OrderQuerySearchActivity" >
+        </activity>
+        <activity android:name=".CompanyMainActivity" >
+        </activity>
+        <activity
+            android:name=".activity.StoreMainActivity"
+            android:label="@string/title_activity_store_management" >
+        </activity>
+        <activity android:name=".OrderQueryDetailActivity" >
+        </activity>
+        <activity android:name=".activity.ValidCodeActivity" >
+        </activity>
+        <activity android:name=".activity.ServerActivity" >
+        </activity>
+        <activity android:name=".activity.OpenServerActivity" >
+        </activity>
+        <activity android:name=".activity.RegisterSuc" >
+        </activity>
+        <activity android:name=".activity.ShopListViewActivity" >
+        </activity>
+        <activity android:name=".activity.PersonalManagerActivity" >
+        </activity>
+        <activity android:name=".activity.StoreManagerActivity" >
+        </activity>
+        <activity android:name=".activity.PersonalSearchActivity" >
+        </activity>
+        <activity android:name=".activity.StoreDetailActivity" >
+        </activity>
+        <activity
+            android:name=".test.lhx.TestUnionPayActivity"
+            android:label="@string/title_activity_test_union_pay" >
+        </activity>
+        <activity android:name=".activity.ExplainActivity" />
+        <activity android:name=".activity.SubmitServerActivity" >
+        </activity>
+        <activity android:name=".FeedBackActivity" >
+        </activity>
+        <activity
+            android:name=".StoreListAddActivity"
+            android:label="@string/title_activity_store_list_add" >
+        </activity>
+        <activity
+            android:name=".PersonAddListActivity"
+            android:label="@string/title_activity_person_add_list" >
+        </activity>
+    </application>
+
+</manifest>

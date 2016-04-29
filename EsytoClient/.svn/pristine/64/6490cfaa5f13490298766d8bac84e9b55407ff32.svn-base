@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:client="http://schemas.android.com/apk/res/com.ec2.yspay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/month_bg_color"
+    android:orientation="vertical" >
+
+    <com.ec2.yspay.widget.MyTitle
+        android:id="@+id/rl_top"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        client:isShowLeft="true"
+        client:titleName="服务" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@color/white" >
+
+            <ImageView
+                android:id="@+id/first"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:paddingLeft="25dp"
+                android:src="@drawable/first" />
+
+            <TextView
+                android:id="@+id/first_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/first"
+                android:layout_marginBottom="5dp"
+                android:gravity="center"
+                android:paddingLeft="12dp"
+                android:paddingTop="4dp"
+                android:text="提交申请"
+                android:textColor="#35bd19" />
+
+            <ImageView
+                android:id="@+id/first_line"
+                android:layout_width="50dp"
+                android:layout_height="1dp"
+                android:layout_centerInParent="true"
+                android:layout_toRightOf="@id/first"
+                android:background="@color/line_gray" />
+
+            <ImageView
+                android:id="@+id/second"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_toRightOf="@id/first_line"
+                android:src="@drawable/second" />
+
+            <ImageView
+                android:id="@+id/second_line"
+                android:layout_width="50dp"
+                android:layout_height="1dp"
+                android:layout_centerInParent="true"
+                android:layout_toRightOf="@id/second"
+                android:background="@color/line_gray" />
+
+            <ImageView
+                android:id="@+id/three"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_toRightOf="@id/second_line"
+                android:src="@drawable/three" />
+
+            <ImageView
+                android:id="@+id/three_line"
+                android:layout_width="50dp"
+                android:layout_height="1dp"
+                android:layout_centerInParent="true"
+                android:layout_toRightOf="@id/three"
+                android:background="@color/line_gray" />
+
+            <ImageView
+                android:id="@+id/four"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_toRightOf="@id/three_line"
+                android:src="@drawable/four" />
+
+            <ImageView
+                android:id="@+id/four_line"
+                android:layout_width="50dp"
+                android:layout_height="1dp"
+                android:layout_centerInParent="true"
+                android:layout_toRightOf="@id/four"
+                android:background="@color/line_gray" />
+
+            <ImageView
+                android:id="@+id/five"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_toRightOf="@id/four_line"
+                android:src="@drawable/five" />
+
+            <TextView
+                android:id="@+id/second_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="5dp"
+                android:layout_toRightOf="@+id/first_textview"
+                android:paddingLeft="20dp"
+                android:paddingTop="5dp"
+                android:text="客服联系"
+                android:textColor="#999999" />
+
+            <TextView
+                android:id="@+id/three_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="5dp"
+                android:layout_toRightOf="@+id/second_text"
+                android:paddingLeft="15dp"
+                android:paddingTop="5dp"
+                android:text="提交资料"
+                android:textColor="#999999" />
+
+            <TextView
+                android:id="@+id/four_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="5dp"
+                android:layout_toRightOf="@+id/three_text"
+                android:paddingLeft="15dp"
+                android:paddingTop="5dp"
+                android:text="审核资料"
+                android:textColor="#999999" />
+
+            <TextView
+                android:id="@+id/five_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="5dp"
+                android:layout_toRightOf="@+id/four_text"
+                android:paddingLeft="15dp"
+                android:paddingTop="5dp"
+                android:text="开通成功"
+                android:textColor="#999999" />
+        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="@color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="48dp"
+            android:text="可开通支付方式"
+            android:textColor="@color/black_1"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:orientation="horizontal" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/zhifubao_96_96" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="支付宝"
+                    android:textColor="@color/black_3"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/yizhifu_96_96" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="翼支付"
+                    android:textColor="@color/black_3"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/baiduqianbao96_96" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="百度钱包"
+                    android:textColor="@color/black_3"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/weixin_96_96" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="微信支付"
+                    android:textColor="@color/black_3"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/server"
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="180dp"
+            android:background="@drawable/red_btn_normal454_144"
+            android:text="立即申请"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="客服热线：400-600-2036"
+            android:textColor="@color/black_3"
+            android:layout_marginTop="56dp"
+            android:textSize="14sp"
+            android:layout_marginLeft="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginTop="25dp"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="姓名："
+                android:textColor="#333333"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/name_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/dropmenubg114"
+                android:hint="请输入您的姓名(必填)"
+                android:paddingLeft="10dp"
+                android:textColorHint="#cccccc"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="电话："
+                android:textColor="#333333"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/num_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/dropmenubg114"
+                android:hint="请输入您的电话(必填)"
+                android:inputType="number"
+                android:maxLength="11"
+                android:paddingLeft="10dp"
+                android:textColorHint="#cccccc"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="QQ："
+                android:textColor="#333333"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/qq_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/dropmenubg114"
+                android:hint="请输入您的QQ号码"
+                android:inputType="number"
+                android:paddingLeft="10dp"
+                android:textColorHint="#cccccc"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="邮箱："
+                android:textColor="#333333"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/email_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/dropmenubg114"
+                android:hint="请输入您的邮箱"
+                android:paddingLeft="10dp"
+                android:textColorHint="#cccccc"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/submit"
+                style="@style/btn_red636_style"
+                android:layout_marginTop="21dp"
+                android:text="提交" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="说明："
+                android:textColor="#333333"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="18dp"
+                android:layout_marginTop="8dp"
+                android:lineSpacingMultiplier="0.8"
+                android:text="@string/submit_explain"
+                android:textColor="#666666"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

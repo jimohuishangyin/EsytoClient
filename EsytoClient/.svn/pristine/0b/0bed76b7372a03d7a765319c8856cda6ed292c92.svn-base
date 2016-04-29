@@ -1,0 +1,185 @@
+/*
+ * 类文件名:  PayTypePopupWindow.java
+ * 著作版权:  深圳市易商云电子商务有限公司 Copyright 2012-2022, E-mail: hongxiang_luo@esyto.com, All rights reserved
+ * 功能描述:  <描述>
+ * 类创建人:  罗洪祥
+ * 创建时间:  2015年10月9日
+ * 功能版本:  V001Z0001
+ */
+package com.ec2.yspay.pay;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.PopupWindow.OnDismissListener;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.adapter.PayTypeGridViewAdapter;
+import com.ec2.yspay.entity.ChannelTypes;
+import com.ec2.yspay.entity.PayTypeEntity;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.response.GetPayChanneResponse;
+import com.ec2.yspay.http.response.OrderQueryListResponse;
+import com.ec2.yspay.http.task.GetPayChannelTask;
+import com.ec2.yspay.http.task.OrderQueryListTask;
+import com.ec2.yspay.widget.LineGridView;
+
+/**
+ * <一句话功能简述>
+ * <功能详细描述>
+ * 
+ * @author   罗洪祥
+ * @version  V001Z0001
+ * @date     2015年10月9日
+ * @see  [相关类/方法]
+ * @since  [产品/模块版本]
+ */
+public class PayTypePopupWindow 
+{
+    private PopupWindow popupWindow;
+    private LayoutInflater inflater;
+    private LineGridView mPayGridView;
+    private Context mContext;
+    private List<PayTypeEntity> payList;
+    private String money,mRemark;
+    private List<ChannelTypes> mChannelTypes;
+    public PayTypePopupWindow(Activity context,LayoutInflater inflater,List<ChannelTypes> channelTypes) {
+        this.inflater = inflater;
+        mContext = context;
+        mChannelTypes = channelTypes;
+    }
+    public void setMoney(String money){
+        this.money = money;
+    }
+    /** 
+     * 创建PopupWindow 
+     */  
+    protected void initPopuptWindow() {
+        // TODO Auto-generated method stub 
+        View popupWindow_view = inflater.inflate(R.layout.layout_paytype, null,  
+                false);  
+        popupWindow = new PopupWindow(popupWindow_view, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT); 
+        
+        ColorDrawable cd = new ColorDrawable(-0000);
+        popupWindow.setBackgroundDrawable(cd);
+        popupWindow.update();
+        popupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+        popupWindow.setTouchable(true); // 设置popupwindow可点击
+        popupWindow.setOutsideTouchable(true); // 设置popupwindow外部可点击
+        popupWindow.setFocusable(true); // 获取焦点
+        WindowManager.LayoutParams lp=((Activity)mContext).getWindow().getAttributes();
+        lp.alpha = 0.4f;
+        ((Activity)mContext).getWindow().setAttributes(lp);
+        popupWindow.setOnDismissListener(new OnDismissListener()
+        {
+            @Override
+            public void onDismiss()
+            {
+                // TODO Auto-generated method stub
+                WindowManager.LayoutParams lp=((Activity)mContext).getWindow().getAttributes();
+                lp.alpha = 1f;
+                ((Activity)mContext).getWindow().setAttributes(lp);
+            }
+        });
+        // 设置动画效果  
+        popupWindow.setAnimationStyle(R.style.PopupAnimation);  
+        mPayGridView = (LineGridView)popupWindow_view.findViewById(R.id.gridview_paytype);
+        initDate();
+        PayTypeGridViewAdapter adapter = new PayTypeGridViewAdapter(mContext,this,payList,money,mRemark);
+        mPayGridView.setAdapter(adapter);
+        RelativeLayout rlBtnDown = (RelativeLayout)popupWindow_view.findViewById(R.id.rl_down);
+        rlBtnDown.setOnClickListener(new OnClickListener()
+        {
+            
+            @Override
+            public void onClick(View v)
+            {
+                popupWindow.dismiss();  
+            }
+        });
+    }  
+    
+    
+    
+    
+    /*** 
+     * 获取PopupWindow实例 
+     */  
+    public PopupWindow getPopupWindow() {  
+        if (null != popupWindow) {  
+//            popupWindow.dismiss();  
+        } else {  
+            initPopuptWindow();  
+        }  
+        return popupWindow;
+    }  
+    /**
+     * 关闭窗口
+     * 
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年10月14日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    public void dismiss(){
+        if (null != popupWindow) {  
+          popupWindow.dismiss();  
+      } 
+    }
+    
+    
+    private void initDate(){
+        payList = new ArrayList<PayTypeEntity>();
+        for(int i = 0;i<mChannelTypes.size();i++){
+        	PayTypeEntity list = null;
+        	if(mChannelTypes.get(i).getIsOpen().equals("1")){
+        		list= new PayTypeEntity(Integer.parseInt(mChannelTypes.get(i).getChannelType()),mChannelTypes.get(i).getName(),PayTypeEntity.get144ImgId(Integer.parseInt(mChannelTypes.get(i).getChannelType())),mChannelTypes.get(i).getIsOpen());
+        	}else{
+        		list= new PayTypeEntity(Integer.parseInt(mChannelTypes.get(i).getChannelType()),mChannelTypes.get(i).getName(),PayTypeEntity.get144ImgDeafaultId(Integer.parseInt(mChannelTypes.get(i).getChannelType())),mChannelTypes.get(i).getIsOpen());
+        	}
+        	payList.add(list);
+        }
+        /*PayTypeEntity cash = new PayTypeEntity(PayTypeEntity.PAY_CASH, "现金支付"
+            , PayTypeEntity.get144ImgId(PayTypeEntity.PAY_CASH),"");
+        payList.add(cash);
+        PayTypeEntity card = new PayTypeEntity(PayTypeEntity.PAY_UNION, "银行卡支付"
+            , PayTypeEntity.get144ImgId(PayTypeEntity.PAY_UNION));
+        payList.add(card);
+        PayTypeEntity ali = new PayTypeEntity(PayTypeEntity.PAY_ALI, "支付宝"
+            , PayTypeEntity.get144ImgId(PayTypeEntity.PAY_ALI));
+        payList.add(ali);
+        PayTypeEntity wx = new PayTypeEntity(PayTypeEntity.PAY_WX, "微信"
+            , PayTypeEntity.get144ImgId(PayTypeEntity.PAY_WX));
+        payList.add(wx);
+        PayTypeEntity best = new PayTypeEntity(PayTypeEntity.PAY_BEST, "翼支付"
+            , PayTypeEntity.get144ImgId(PayTypeEntity.PAY_BEST));
+        payList.add(best);*/
+    }
+    /**
+     * <一句话功能简述>
+     * <功能详细描述>
+     * 
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年11月11日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    public void setRemark(String mRemark)
+    {
+        // TODO Auto-generated method stub
+        this.mRemark = mRemark;
+    }
+}

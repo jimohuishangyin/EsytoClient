@@ -1,0 +1,218 @@
+package com.ec2.yspay.activity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.adapter.RefundListViewdapter;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.cash.OrderItem;
+import com.ec2.yspay.http.response.GetBankCardPosResponse;
+import com.ec2.yspay.http.task.GetBankCardPosTask;
+import com.ec2.yspay.widget.MyTitle;
+import com.ec2.yspay.widget.PullToRefreshLayout;
+import com.ec2.yspay.widget.PullToRefreshLayout.OnRefreshListener;
+import com.ec2.yspay.widget.PullableListView;
+import com.ec2.yspay.zxing.activity.CaptureActivity;
+
+public class RefundTradingNumberActivity extends BaseActivity implements OnRefreshListener
+{
+    private EditText etOrderId;
+    private ImageButton ibSaoma;
+    private Button btnDone;
+    private MyTitle myTitle;
+    private String mTitle;
+    private PullToRefreshLayout pullToRefreshLayout;
+    private PullableListView mLastedListView;
+    private int pageNow=1;
+    private List<OrderItem> orderList = new ArrayList<OrderItem>();
+    private RefundListViewdapter mAdapter = null;
+    private boolean isCexiao = false;
+    private TextView mExplainTextView,mPayTextView;
+    private String explain;
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_refund_trading_number);
+        pullToRefreshLayout = (PullToRefreshLayout)findViewById(R.id.refresh_view);
+        etOrderId = (EditText)findViewById(R.id.et_orderid);
+        ibSaoma = (ImageButton)findViewById(R.id.ib_saoma);
+        mExplainTextView = (TextView) findViewById(R.id.tv_explain);
+        mLastedListView = (PullableListView)findViewById(R.id.lv_lasted_list);
+        mPayTextView = (TextView) findViewById(R.id.type_pay);
+        mAdapter = new RefundListViewdapter(mContext, orderList);
+        mLastedListView.setAdapter(mAdapter);
+        mLastedListView.setOnItemClickListener(new OnItemClickListener()
+        {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                // TODO Auto-generated method stub
+                Intent intent = new Intent(mContext, RefundDetailActivity.class);
+                intent.putExtra("orderId", orderList.get(position).getOrderNo());
+                intent.putExtra("isCeXiao", isCexiao);
+                intent.putExtra("title", mTitle);
+                startActivity(intent);
+            }
+        });
+        pullToRefreshLayout.setOnRefreshListener(this);
+        ibSaoma.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Intent saomaIntent = new Intent(mContext, CaptureActivity.class);
+                saomaIntent.putExtra("isShowBtn", false);
+                startActivityForResult(saomaIntent, 101);
+            }
+        });
+        btnDone = (Button)findViewById(R.id.btn_done);
+        btnDone.setOnClickListener(onclick);
+        etOrderId.requestFocus();
+        mTitle = getIntent().getStringExtra("title");
+        myTitle = (MyTitle)findViewById(R.id.rl_top);
+        myTitle.setTitleText(mTitle);
+        if("银行卡撤销".equals(mTitle)){
+        	isCexiao = true;
+        	explain = "撤销说明";
+        	mExplainTextView.setText(explain);
+        	mPayTextView.setText("最近银行卡收款记录");
+        }else{
+        	explain = "退款说明";
+        	mExplainTextView.setText(explain);
+        }
+        mExplainTextView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent explainIntent = new Intent(mContext,ExplainActivity.class);
+				explainIntent.putExtra("title", explain);	
+				startActivity(explainIntent);
+			}
+		});
+        getLastedOrder();
+    }
+    
+    
+    /**
+     * 重载方法
+     */
+    @Override
+    protected void onResume()
+    {
+        // TODO Auto-generated method stub
+        super.onResume();
+        if("撤销".equals(mTitle))
+            isCexiao = true;
+    }
+    /**
+     * 重载方法
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        // TODO Auto-generated method stub
+        if(requestCode==101&&resultCode==100){
+            String codeMsg = data.getStringExtra("qrCodeFromScan");
+            etOrderId.setText(codeMsg);
+        }
+    }
+    private OnClickListener onclick = new OnClickListener()
+    {
+        
+        @Override
+        public void onClick(View v)
+        {
+            // TODO Auto-generated method stub
+            switch(v.getId()){
+                case R.id.btn_done:
+                    String orderId = etOrderId.getText().toString().trim();
+                    if(Toolkits.isStrEmpty(orderId)){
+                        showToast("请填写订单号！");
+                        return;
+                    }else{
+                         Intent intent = new Intent(mContext, RefundDetailActivity.class);
+                         intent.putExtra("orderId", orderId);
+                         intent.putExtra("isCeXiao", isCexiao);
+                         intent.putExtra("title", mTitle);
+                         startActivity(intent);
+                    }
+                    break;
+            }
+        }
+    };
+    /**
+     * 重载方法
+     * @param pullToRefreshLayout
+     */
+    @Override
+    public void onRefresh(PullToRefreshLayout pullToRefreshLayout)
+    {
+        // TODO Auto-generated method stub
+        pageNow = 1;
+        
+        getLastedOrder();
+    }
+    /**
+     * 重载方法
+     * @param pullToRefreshLayout
+     */
+    @Override
+    public void onLoadMore(PullToRefreshLayout pullToRefreshLayout)
+    {
+        // TODO Auto-generated method stub
+        getLastedOrder();
+    }
+	
+    private void getLastedOrder(){
+        GetBankCardPosTask task = new GetBankCardPosTask(mContext, pageNow,isCexiao);
+//        if(pageNow==1)
+//        task.setProgressVisiable(true);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                GetBankCardPosResponse response = (GetBankCardPosResponse)obj;
+                if(pageNow==1){
+                    orderList.clear();
+                    pullToRefreshLayout.refreshFinish(PullToRefreshLayout.SUCCEED);
+                }else{
+                    pullToRefreshLayout.loadmoreFinish(PullToRefreshLayout.SUCCEED);
+                }
+                List<OrderItem> list = response.getOrderList();
+                orderList.addAll(list);
+                pageNow++;
+                mAdapter.notifyDataSetChanged();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                GetBankCardPosResponse response = (GetBankCardPosResponse)obj;
+                showToast(response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+}

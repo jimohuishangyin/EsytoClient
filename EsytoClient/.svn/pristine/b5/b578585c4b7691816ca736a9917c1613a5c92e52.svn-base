@@ -1,0 +1,94 @@
+package com.ec2.yspay.adapter;
+
+import java.util.List;
+
+import com.ec2.yspay.R;
+import com.ec2.yspay.adapter.PrintListAdapter.ViewHolder;
+import com.ec2.yspay.entity.PayTypeEntity;
+import com.ec2.yspay.http.cash.PrintDetailItem;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+public class PrintDetailAdapter extends BaseAdapter {
+	List<PrintDetailItem> mList;
+	Context context;
+
+	public PrintDetailAdapter(Context context, List<PrintDetailItem> mList) {
+		this.context = context;
+		this.mList = mList;
+	}
+
+	@Override
+	public int getCount() {
+		return mList.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return mList.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		ViewHolder viewHolder = null;
+		if (convertView == null) {
+			convertView = LayoutInflater.from(context).inflate(
+					R.layout.item_listview_print_detail, null);
+			viewHolder = new ViewHolder();
+			viewHolder.tv_time = (TextView) convertView
+					.findViewById(R.id.tv_time);
+			viewHolder.tv_orderId = (TextView) convertView
+					.findViewById(R.id.tv_orderid);
+			viewHolder.tv_money = (TextView) convertView
+					.findViewById(R.id.tv_money);
+			viewHolder.ivIcon = (ImageView) convertView
+					.findViewById(R.id.iv_icon);
+			convertView.setTag(viewHolder);
+		} else {
+			viewHolder = (ViewHolder) convertView.getTag();
+		}
+		PrintDetailItem item = mList.get(position);
+		viewHolder.tv_orderId.setText(item.getOrderNo());
+		viewHolder.tv_time.setText(item.getOrderTime().substring(11, 19));
+		viewHolder.tv_money.setText("￥"+item.getAmount());
+		int payId = Integer.valueOf(item.getChannelType());
+		if (payId == PayTypeEntity.PAY_ALI) {
+			viewHolder.ivIcon.setImageResource(PayTypeEntity.get72ImgId(String
+					.valueOf(payId)));
+		} else if (payId == PayTypeEntity.PAY_BEST) {
+			viewHolder.ivIcon.setImageResource(PayTypeEntity.get72ImgId(String
+					.valueOf(payId)));
+		} else if (payId == PayTypeEntity.PAY_CASH) {
+			viewHolder.ivIcon.setImageResource(PayTypeEntity.get72ImgId(String
+					.valueOf(payId)));
+		} else if (payId == PayTypeEntity.PAY_UNION) {
+			viewHolder.ivIcon.setImageResource(PayTypeEntity.get72ImgId(String
+					.valueOf(payId)));
+		} else if (payId == PayTypeEntity.PAY_WX) {
+			viewHolder.ivIcon.setImageResource(PayTypeEntity.get72ImgId(String
+					.valueOf(payId)));
+		} else if (payId == PayTypeEntity.PAY_BAIDU) {
+			viewHolder.ivIcon.setImageResource(PayTypeEntity.get72ImgId(String
+					.valueOf(payId)));
+		}
+
+		return convertView;
+	}
+
+	class ViewHolder {
+		TextView tv_time, tv_orderId, tv_money;
+		ImageView ivIcon;
+	}
+}

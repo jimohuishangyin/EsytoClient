@@ -1,0 +1,109 @@
+package com.ec2.yspay;
+
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
+import android.os.Build.VERSION;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.ec2.yspay.activity.BaseActivity;
+import com.ec2.yspay.common.Constants;
+import com.ec2.yspay.common.DataCleanManager;
+import com.ec2.yspay.common.DataCleanManagerUtils;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.common.VersionInfo;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.response.GetNewVersionResponse;
+import com.ec2.yspay.http.response.LoginResponse;
+import com.ec2.yspay.http.task.GetNewVersionTask;
+import com.ec2.yspay.http.task.NewVersionUpdateTask;
+import com.ec2.yspay.widget.PopupDialog;
+
+public class AboutUsActivity extends BaseActivity implements OnClickListener
+{
+    private RelativeLayout rlClean,rlFeedback;
+    private TextView tvVersion,tvHuancun;
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_about_us);
+        tvVersion = (TextView)findViewById(R.id.tv_version);
+        tvHuancun = (TextView)findViewById(R.id.tv_huancun);
+        rlFeedback = (RelativeLayout)findViewById(R.id.rl_about_feedback);
+        findViewById(R.id.rv_check_update).setOnClickListener(this);
+        findViewById(R.id.rl_about_clean).setOnClickListener(this);
+        findViewById(R.id.rl_kefu).setOnClickListener(this);
+        rlFeedback.setOnClickListener(this);
+		tvVersion.setText("当前版本  " + Toolkits.getCurAppVerName(mContext));
+		String huancun = "0K";
+		if (VersionInfo.code.equals(VersionInfo.HAVE_NEW_VERSION)) {
+			findViewById(R.id.bt_new_version).setVisibility(View.VISIBLE);
+		} else {
+
+			findViewById(R.id.bt_new_version).setVisibility(View.INVISIBLE);
+		}
+		TextView tvVersionNum = (TextView) findViewById(R.id.tv_version_num);
+		tvVersionNum.setText(VersionInfo.clientVersion);
+		try {
+			huancun = DataCleanManager.getTotalCacheSize(mContext);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		tvHuancun.setText(huancun);
+	}
+
+    /**
+     * 重载方法
+     * @param v
+     */
+    @Override
+    public void onClick(View v)
+    {
+        // TODO Auto-generated method stub
+        switch (v.getId())
+        {
+        case R.id.rv_check_update:
+        	VersionInfo.GetVersion(AboutUsActivity.this);
+        	break;
+            case R.id.rl_about_clean:
+                DataCleanManager.clearAllCache(mContext);
+                //是否要删除图片缓存
+                DataCleanManagerUtils.cleanApplicationData(mContext,Constants.PATH_FILE+"/image/");
+                showToast("已清空缓存！");
+                String huancun = "0K";
+                try
+                {
+                    huancun = DataCleanManager.getTotalCacheSize(mContext);
+                }
+                catch (Exception e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                tvHuancun.setText(huancun);
+                break;
+            case R.id.rl_kefu:
+//                Intent intent=new Intent(Intent.ACTION_CALL,Uri.parse("tel:4001-800800"));
+//                startActivity(intent);
+                Intent intent = new Intent(Intent.ACTION_DIAL,Uri.parse("tel:400-6602036")); 
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 
+                startActivity(intent);
+                break;
+            case R.id.rl_about_feedback:
+            	Intent feedbackintent = new Intent(mContext,FeedBackActivity.class);
+            	startActivity(feedbackintent);
+            	break;
+            default:
+                break;
+        }
+    }
+}

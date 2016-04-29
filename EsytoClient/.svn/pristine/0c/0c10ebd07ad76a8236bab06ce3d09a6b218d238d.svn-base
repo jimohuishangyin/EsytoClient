@@ -1,0 +1,219 @@
+package com.ec2.yspay;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.SimpleAdapter;
+
+import com.ec2.yspay.activity.LoginActivity;
+import com.ec2.yspay.common.MyApplication;
+import com.ec2.yspay.common.ShopManager;
+import com.ec2.yspay.common.ToastUtils;
+import com.ec2.yspay.common.Toolkits;
+import com.ec2.yspay.fragment.ReportDayFragment;
+import com.ec2.yspay.fragment.ReportMonthFragment;
+import com.ec2.yspay.fragment.ReportPersonFragment;
+import com.ec2.yspay.fragment.ReportUserDefinedFragment;
+import com.ec2.yspay.fragment.ReportYearFragment;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.cash.ShopItem;
+import com.ec2.yspay.http.response.GetShopListResponse;
+import com.ec2.yspay.http.task.GetShopListTask;
+import com.ec2.yspay.widget.MyTitle;
+
+public class ReportMainActivity extends FragmentActivity
+{
+    private Context mContext;
+    private MyTitle myTitle;
+    private FragmentManager fragmentManager = getSupportFragmentManager();
+    private ReportDayFragment dayFragment = new ReportDayFragment();
+    private ReportMonthFragment monthFragment = new ReportMonthFragment();
+    private ReportYearFragment yearFragment = new ReportYearFragment();
+    private ReportPersonFragment personFragment = new ReportPersonFragment();
+    private ReportUserDefinedFragment definedFragment = new ReportUserDefinedFragment();
+    private int currentPosition=0;
+    private ShopManager shopManager = ShopManager.getInstance(mContext);
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_report_main);
+        if (!checkLoginState()){
+            finish();
+            return;
+        }
+        mContext = this;
+        MyApplication.addActivity(this);
+        myTitle = (MyTitle)findViewById(R.id.rl_top);
+        myTitle.setRightOnclickListener(new View.OnClickListener()
+        {
+            
+            @Override
+            public void onClick(View v)
+            {
+                // TODO Auto-generated method stub
+                showWindow(myTitle);
+            }
+        });
+        FragmentTransaction f_transaction = fragmentManager.beginTransaction();
+        f_transaction.replace(R.id.main_content_frame, dayFragment);
+        f_transaction.commitAllowingStateLoss();
+    }
+    @Override
+    protected void onResume() {
+    	// TODO Auto-generated method stub
+    	super.onResume();
+    	if(shopManager.isShopListEmpty()){
+    		getShopList();
+    	}
+    }
+    private void changeFragment(int position){
+        FragmentTransaction f_transaction = fragmentManager.beginTransaction();
+        Fragment fragment = null;
+        if(position==0){
+            fragment = dayFragment;
+            myTitle.setTitleText("日报表");
+        }else if(position==1){
+            fragment = monthFragment;
+            myTitle.setTitleText("月报表");
+        }else if(position==2){
+            fragment = yearFragment;
+            myTitle.setTitleText("年报表");
+        }/*//zzm 去掉按人员查看功能2015,12,10
+        else if(position==3){
+            fragment = personFragment;
+        }*/else {
+            fragment = definedFragment;
+            myTitle.setTitleText("自定义报表");
+        }
+        if(currentPosition!=position){
+            currentPosition = position;
+            f_transaction.replace(R.id.main_content_frame, fragment);
+            f_transaction.commitAllowingStateLoss();
+        }
+    }
+    private PopupWindow popupWindow;
+    private void showWindow(View parent){
+        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        if(popupWindow==null){
+            LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+             
+            View view = layoutInflater.inflate(R.layout.layout_report_type, null);
+            ListView listView = (ListView)view.findViewById(R.id.lv_report);
+            List<Map<String, Object>> contents = getTypeList();
+            SimpleAdapter adapter = new SimpleAdapter(this,
+                    (List<Map<String, Object>>) contents, R.layout.item_listview_report_type,
+                    new String[] { "CONTENT" }, new int[] {R.id.tv_name });
+
+            listView.setAdapter(adapter);
+            Toolkits.setListViewHeightBasedOnChildren(listView);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view,
+                        int position, long id) {
+                    // TODO Auto-generated method stub
+                    popupWindow.dismiss();
+                    changeFragment(position);
+                }
+            });
+            popupWindow = new PopupWindow(view, windowManager.getDefaultDisplay().getWidth() / 2, LayoutParams.WRAP_CONTENT);
+            
+        }
+        // 使其聚集
+        popupWindow.setFocusable(true);
+        // 设置允许在外点击消失
+        popupWindow.setOutsideTouchable(true);
+ 
+        // 这个是为了点击“返回Back”也能使其消失，并且并不会影响你的背景
+        popupWindow.setBackgroundDrawable(new BitmapDrawable());
+        
+        // 显示的位置为:屏幕的宽度的一半-PopupWindow的高度的一半
+        int xPos = windowManager.getDefaultDisplay().getWidth() / 2;
+        Log.i("coder", "xPos:" + xPos);
+ 
+        popupWindow.showAsDropDown(parent, xPos, 0);
+    }
+    private List<Map<String,Object>> getTypeList(){
+        List<Map<String, Object>> contents = new ArrayList<Map<String,Object>>();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("CONTENT", "日报表");
+        Map<String, Object> map2 = new HashMap<String, Object>();
+        map2.put("CONTENT", "月报表");
+        Map<String, Object> map3 = new HashMap<String, Object>();
+        map3.put("CONTENT", "年报表");
+        Map<String, Object> map4 = new HashMap<String, Object>();
+        map4.put("CONTENT", "按员工查看");
+        Map<String, Object> map5 = new HashMap<String, Object>();
+        map5.put("CONTENT", "自定义报表");
+        contents.add(map);
+        contents.add(map2);
+        contents.add(map3);
+      //zzm 去掉按人员查看功能2015,12,10  contents.add(map4);
+        contents.add(map5);
+        return contents;
+    }
+    /**
+     * 如果未登录，先跳到登录页面
+     * 登录成功后跳到刚才的页面
+     * 
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年11月11日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    public boolean checkLoginState(){
+        if(!MyApplication.mDataCache.isLoginYet() ){
+            Intent inte = this.getIntent();
+            ToastUtils.showLong(mContext, "用户信息已失效，请重新登录！");
+            inte.setClass(mContext, LoginActivity.class);
+            inte.putExtra("activity", this.getClass());
+            mContext.startActivity(inte);
+            return false;
+        }
+        return true;
+    }
+    @Override
+    protected void onDestroy() {
+    	// TODO Auto-generated method stub
+    	super.onDestroy();
+    	shopManager.clearData();
+    }
+    private void getShopList(){
+        GetShopListTask task = new GetShopListTask(mContext);
+        task.setProgressVisiable(false);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            @Override
+            public void onSucc(Object obj)
+            {
+                GetShopListResponse response = (GetShopListResponse)obj;
+                shopManager.setShoplist(response.getShopList());
+            }
+
+            @Override
+            public void onFail(Object obj)
+            {
+            }
+        });
+        task.execute();
+    }
+}

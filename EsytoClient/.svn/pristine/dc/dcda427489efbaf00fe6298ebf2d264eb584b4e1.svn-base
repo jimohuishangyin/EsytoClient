@@ -1,0 +1,302 @@
+package com.ec2.yspay;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.ec2.yspay.activity.BaseActivity;
+import com.ec2.yspay.activity.PersonalUpdateActivity;
+import com.ec2.yspay.activity.StoreMainActivity;
+import com.ec2.yspay.adapter.StaffListAdapter;
+import com.ec2.yspay.common.AsyncImageLoader;
+import com.ec2.yspay.common.MyApplication;
+import com.ec2.yspay.http.OnTaskFinished;
+import com.ec2.yspay.http.cash.ShopItem;
+import com.ec2.yspay.http.cash.StaffItem;
+import com.ec2.yspay.http.response.BooleanResponse;
+import com.ec2.yspay.http.response.GetStaffListResponse;
+import com.ec2.yspay.http.response.GetStoreMsgResponse;
+import com.ec2.yspay.http.task.DelStoreTask;
+import com.ec2.yspay.http.task.GetStaffListTask;
+import com.ec2.yspay.http.task.GetStoreMsgTask;
+import com.ec2.yspay.widget.ButtonRedCenter;
+import com.ec2.yspay.widget.RoundImageViewNoBorder;
+import com.ec2.yspay.widget.WarnPopupDialog;
+
+public class StoreManagementActivity extends BaseActivity implements OnClickListener
+{
+    private ListView mStoreListView;
+    private StaffListAdapter mAdapter;
+    private String shopCode;
+    private List<StaffItem> mStaffList = new ArrayList<StaffItem>();
+    private ButtonRedCenter btnAddStaff;
+    private ShopItem mShopItem;
+    private LinearLayout llStore;
+    private TextView tvShopName,tvShopAddr;
+    private AsyncImageLoader asyImg = new AsyncImageLoader(this);
+    private RoundImageViewNoBorder ivTouxiang;
+    private Button btnDelStore;
+    private List<ShopItem> mShopList;
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_store_management);
+        mShopItem = (ShopItem)getIntent().getSerializableExtra("shopItem");
+        if(mShopItem!=null)
+            shopCode = mShopItem.getShopCode();
+        else
+            finish();
+        mShopList = (List<ShopItem>)getIntent().getSerializableExtra("shopList");
+        
+        tvShopName = (TextView)findViewById(R.id.tv_shopname);
+        tvShopAddr = (TextView)findViewById(R.id.tv_shopaddress);
+        ivTouxiang = (RoundImageViewNoBorder)findViewById(R.id.iv_logo);
+        mStoreListView  = (ListView)findViewById(R.id.lv_storelist);
+        mAdapter = new StaffListAdapter(mContext, mStaffList,findViewById(R.id.ll_main));
+        mStoreListView.setAdapter(mAdapter);
+        
+        btnAddStaff = (ButtonRedCenter)findViewById(R.id.btn_add_staff); 
+        btnAddStaff.setBtnOnclickListener(this);
+        mStoreListView.setOnItemClickListener(new OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                // TODO Auto-generated method stub
+                StaffItem item = mStaffList.get(position);
+                Intent intent = new Intent(mContext, PersonalUpdateActivity.class);
+                intent.putExtra("staff", item);
+                intent.putExtra("shopCode", shopCode);
+                if(mShopList==null){
+                    mShopList = new ArrayList<ShopItem>();
+                    mShopList.add(mShopItem);
+                }
+                intent.putExtra("shopList", (Serializable)mShopList); 
+                mContext.startActivity(intent);
+            }
+        });
+        
+        llStore = (LinearLayout)findViewById(R.id.ll_store);
+        llStore.setOnClickListener(this);
+        btnDelStore = (Button)findViewById(R.id.btn_del_store);
+        btnDelStore.setOnClickListener(this);
+        if(MyApplication.mDataCache.duty>1)
+            btnDelStore.setVisibility(View.GONE);
+        updateView();
+    }
+    private void showWarnDialog() {
+
+        final WarnPopupDialog.Builder builder = new WarnPopupDialog.Builder(mContext);
+        //builder.setMessage("该凭证号已超过撤销时间,只能通过现金退款,是否继续");
+        builder.setTitle("提示");
+        builder.setMessage("是否删除该门店？");
+        builder.setNegativeButton("取消",
+                new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    
+                        
+                    }
+                });
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                
+                dialog.dismiss();
+                delStore();
+                
+            }
+        });
+
+        builder.create().show();
+    }
+    /**
+     * 删除门店
+     * 
+     * @author   罗洪祥
+     * @version  V001Z0001
+     * @date     2015年12月8日
+     * @see  [相关类/方法]
+     * @since  [产品/模块版本]
+     */
+    protected void delStore()
+    {
+        // TODO Auto-generated method stub
+        DelStoreTask task = new DelStoreTask(mContext);
+        task.setShopCode(shopCode);
+        task.setProgressVisiable(true);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                showToast("删除成功！");
+                finish();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                BooleanResponse response = (BooleanResponse)obj;
+                showToastLong(response.getResultDesc());
+            }
+        });
+        task.execute();
+    }
+    /**
+     * 重载方法
+     */
+    @Override
+    protected void onResume()
+    {
+        // TODO Auto-generated method stub
+        super.onResume();
+        getStaffList();
+        getShopMsg();
+    }
+    private void updateView(){
+        mAdapter.notifyDataSetChanged();
+        tvShopName.setText(mShopItem.getShopName());
+        tvShopAddr.setText(mShopItem.getAddress());
+        
+    }
+    private void getStaffList(){
+        GetStaffListTask task = new GetStaffListTask(mContext);
+        task.setProgressVisiable(true);
+        task.setShopCode(shopCode);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                GetStaffListResponse response = (GetStaffListResponse)obj;
+                mStaffList.clear();
+                /**
+                 * 管理员会出现自己管理自己的情况，过去和自己同名的账号
+                 */
+                List<StaffItem> tempList = response.getStaffList();
+                for(int i=0;i<tempList.size();i++){
+                    if(MyApplication.mDataCache.UserPhoneNbr.equals(tempList.get(i).getAccount())){
+                        tempList.remove(i);
+                    }
+                }
+                mStaffList.addAll(tempList);
+                Collections.sort(mStaffList, new ComparatorValues());
+                updateView();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                GetStaffListResponse response = (GetStaffListResponse)obj;
+                showToast(response.getResultDesc());
+                finish();
+            }
+        });
+        task.execute();
+    }
+    private void getShopMsg(){
+        GetStoreMsgTask task = new GetStoreMsgTask(mContext);
+        task.setShopCode(shopCode);
+        task.setOnTaskFinished(new OnTaskFinished()
+        {
+            
+            @Override
+            public void onSucc(Object obj)
+            {
+                // TODO Auto-generated method stub
+                GetStoreMsgResponse response = (GetStoreMsgResponse)obj;
+                String shopName = response.getShopName();
+                String shopAddress = response.getShopAddress();
+                String shopPhone = response.getShopPhone();
+                String province = response.getProvince();
+                String city = response.getCity();
+                String  shopLogoImage = response.getShopLogoImage();
+                String  shopLogoImageUrl = response.getShopLogoImageUrl();
+                mShopItem = new ShopItem(shopName, shopCode, shopAddress, city, shopLogoImage
+                    ,shopLogoImageUrl, shopPhone, province);
+                asyImg.LoadImage(mShopItem.getLogoImageUrl(),mShopItem.getLogoImage()
+                    , ivTouxiang,getResources().getDrawable(R.drawable.company_default_logo));
+                updateView();
+            }
+            
+            @Override
+            public void onFail(Object obj)
+            {
+                // TODO Auto-generated method stub
+                GetStoreMsgResponse response = (GetStoreMsgResponse)obj;
+//                showToast(response.getResultDesc());
+//                finish();
+            }
+        });
+        task.setProgressVisiable(true);
+        task.execute();
+    }
+    /**
+     * 重载方法
+     * @param v
+     */
+    @Override
+    public void onClick(View v)
+    {
+        // TODO Auto-generated method stub
+        switch (v.getId())
+        {
+            case R.id.btn_add_staff:
+                Intent addIntent = new Intent(mContext, PersonalAddActivity.class);
+                List<ShopItem> mShopList = new ArrayList<ShopItem>();
+                mShopList.add(mShopItem);
+                addIntent. putExtra("shopList", (Serializable)mShopList);  
+                startActivity(addIntent);
+                break;
+            case R.id.ll_store:
+                Intent storeIntent = new Intent(mContext, StoreMainActivity.class);
+                storeIntent.putExtra("shopCode", shopCode);
+                startActivity(storeIntent);
+                break;
+            case R.id.btn_del_store:
+                showWarnDialog();
+                break;
+            default:
+                break;
+        }
+    }
+    private class ComparatorValues implements Comparator<StaffItem>{
+
+        @Override
+        public int compare(StaffItem object1, StaffItem object2) {
+            int m1=object1.getDuty();
+            int m2=object2.getDuty();
+            int result=0;
+            if(m1>m2)
+            {
+                result=1;
+            }
+            if(m1<m2)
+            {
+                result=-1;
+            }
+            return result;
+        }        
+        
+    }
+}
